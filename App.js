@@ -7,8 +7,9 @@
  */
 
 import React from 'react';
-import type {Node} from 'react';
 import {
+  Button,
+  DeviceEventEmitter,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -16,97 +17,64 @@ import {
   Text,
   useColorScheme,
   View,
+  NativeModules,
+  PermissionsAndroid,
 } from 'react-native';
-
+const {Background} = NativeModules;
 import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  QuickSQLite as sqlite,
+  open,
+  QuickSQLiteConnection,
+} from 'react-native-quick-sqlite';
+const App = () => {
+  const db = open({name: 'myDB'});
+  const [heartBeat, setHeartBeat] = React.useState(false);
+  React.useEffect(() => {
+    getdb();
+  }, [1]);
+  const getdb = async () => {
+    try {
+      db.execute(
+        'CREATE TABLE IF NOT EXISTS "User" ( id INT PRIMARY KEY, name TEXT NOT NULL, age INT, networth FLOAT);',
+      );
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
-
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+      queryUsers();
+    } catch (e) {
+      console.warn('Error opening db:', e);
+    }
   };
+  const testInsert = () => {
+    // Basic request
+    db.execute(
+      'INSERT INTO "User" (id, name, age, networth) VALUES(?, ?, ?, ?);',
+      [new Date().getMilliseconds(), `TOM`, 32, 3000.23],
+    );
+  };
+  const queryUsers = () => {
+    const queryResult = db.execute(`SELECT * FROM "User"`);
 
+    console.log(queryResult.rows._array);
+  };
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView>
+      <View>
+        <Button
+          title="Start"
+          onPress={() => {
+            // console.log('start service');
+            // Background.startService();
+            testInsert();
+          }}></Button>
+        <Button
+          title="Stop"
+          onPress={() => {
+            // console.log('stop service');
+            // Background.stopService();
+            getdb();
+          }}></Button>
+      </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
