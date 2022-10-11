@@ -10,8 +10,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.17.10",
+    "@react-native-community/netinfo": "^9.3.4",
     "react": "17.0.2",
     "react-native": "0.68.4",
+    "react-native-geolocation-service": "^5.3.1",
     "react-native-quick-sqlite": "^5.0.1"
   },
   "devDependencies": {

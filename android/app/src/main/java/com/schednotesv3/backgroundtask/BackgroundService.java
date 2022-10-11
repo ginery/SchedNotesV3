@@ -28,7 +28,7 @@ public class BackgroundService extends Service {
             Intent myIntent = new Intent(context, BackgroundEventService.class);
             context.startService(myIntent);
             HeadlessJsTaskService.acquireWakeLockNow(context);
-            handler.postDelayed(this, 2000);
+            handler.postDelayed(this, 20000); // 20 sec interval for headless task in react
         }
     };
     private void createNotificationChannel() {
@@ -64,7 +64,7 @@ public class BackgroundService extends Service {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Background service ginx")
+                .setContentTitle("Background Service")
                 .setContentText("Running...")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(contentIntent)
