@@ -28,7 +28,7 @@ public class BackgroundService extends Service {
             Intent myIntent = new Intent(context, BackgroundEventService.class);
             context.startService(myIntent);
             HeadlessJsTaskService.acquireWakeLockNow(context);
-            handler.postDelayed(this, 20000); // 20 sec interval for headless task in react
+            handler.postDelayed(this, 10000); // 10min interval for headless task in react
         }
     };
     private void createNotificationChannel() {

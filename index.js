@@ -1,6 +1,7 @@
 /**
  * @format
  */
+import NetInfo from '@react-native-community/netinfo';
 import Geolocation from 'react-native-geolocation-service';
 import {AppRegistry, PermissionsAndroid} from 'react-native';
 import App from './App';
@@ -38,50 +39,64 @@ const createData = async () => {
   }
 };
 const InsetData = (latitude, longitude) => {
-  createData();
   // Basic request
   db.execute(
     'INSERT INTO "tbl_coordinates" ( latitude, longitude, date_added) VALUES( ?, ?, ?);',
     [latitude, longitude, getDate(new Date())],
   );
 };
-const queryData = () => {
+const queryUsers = () => {
   const queryResult = db.execute(`SELECT * FROM "tbl_coordinates"`);
-
-  console.log(queryResult.rows._array);
+  var data = queryResult.rows._array;
+  console.log(data);
+  var data_array = data.map((item, index) => {
+    return {
+      id: item.id,
+      latitude: item.latitude,
+      longitude: item.longitude,
+      date_added: item.date_added,
+    };
+  });
+  const formData = new FormData();
+  formData.append('array_data', JSON.stringify(data_array));
+  fetch(window.name + 'sendArrayData.php', {
+    method: 'POST',
+    header: {
+      Accept: 'application/json',
+      'Content-Type': 'multipart/form-data',
+    },
+    body: formData,
+  })
+    .then(response => response.json())
+    .then(responseJson => {
+      //   data.map((item, index) => {
+      //     console.log(item);
+      //   });
+      if (responseJson.array_data != '') {
+        if (responseJson.array_data[0].response == 1) {
+          dropTable();
+          createData();
+        }
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      // Alert.alert('Internet Connection Error');
+    });
 };
 const dropTable = () => {
-  const queryResult = db.execute(`DROP TABLE IF EXISTS tbl_coordinates `);
+  const queryResult = db.execute(`DROP TABLE IF EXISTS tbl_coordinates`);
 };
-const requestLocationPermission = async () => {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: 'Location Permission',
-        message: 'MyMapApp needs access to your location',
-      },
-    );
-    const granted_bg = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-    );
 
-    if (granted_bg === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('Location permission granted background');
-    }
-
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      //   Geolocation.getCurrentPosition(info => console.log(info));
-
-      console.log('Location permission granted');
-    } else {
-      console.log('Location permission denied');
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
 const MyHeadlessTask = async () => {
+  NetInfo.fetch().then(state => {
+    console.log('Connection type', state.type);
+    console.log('Is connected?', state.isConnected);
+    createData();
+    if (state.isConnected == true) {
+      queryUsers();
+    }
+  });
   //   requestLocationPermission();
   var watchID = Geolocation.watchPosition(
     latestposition => {
@@ -90,18 +105,7 @@ const MyHeadlessTask = async () => {
     error => console.log(error),
     {enableHighAccuracy: true, timeout: 3000, maximumAge: 3000},
   );
-  //   //   const interval = setInterval(() => {
-  //   //     // getTransactionStatus();
-  //   //     // refreshLocation();
-  //   //     // backgroundLocation();
-  //   //     console.log('headless Task');
-  //   //     Geolocation.getCurrentPosition(info => console.log(info));
-  //   //   }, 5000);
-  //   //   return () => {
-  //   //     clearInterval(interval);
-  //   //     Geolocation.clearWatch(watchID);
-  //   //   };
-  console.log('watchID');
+  console.log(watchID);
   Geolocation.getCurrentPosition(info => {
     console.log(info.coords.latitude);
     InsetData(info.coords.latitude, info.coords.longitude);

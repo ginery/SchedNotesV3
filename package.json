@@ -12,10 +12,18 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.17.10",
     "@react-native-community/netinfo": "^9.3.4",
+    "@react-native-masked-view/masked-view": "^0.2.8",
+    "@react-navigation/native": "^6.0.13",
+    "@react-navigation/stack": "^6.3.2",
+    "native-base": "^3.4.17",
     "react": "17.0.2",
     "react-native": "0.68.4",
     "react-native-geolocation-service": "^5.3.1",
-    "react-native-quick-sqlite": "^5.0.1"
+    "react-native-gesture-handler": "^2.7.0",
+    "react-native-quick-sqlite": "^5.0.1",
+    "react-native-safe-area-context": "^3.4.1",
+    "react-native-screens": "^3.18.0",
+    "react-native-svg": "^12.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
