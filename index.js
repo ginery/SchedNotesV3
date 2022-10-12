@@ -11,6 +11,7 @@ import {
   open,
   QuickSQLiteConnection,
 } from 'react-native-quick-sqlite';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const db = open({name: 'myDB'});
 
 const getDate = today => {
@@ -32,23 +33,23 @@ const getDate = today => {
 const createData = async () => {
   try {
     db.execute(
-      'CREATE TABLE IF NOT EXISTS "tbl_coordinates" (id INTEGER PRIMARY KEY AUTOINCREMENT, latitude TEXT NOT NULL, longitude TEXT NOT NULL, date_added DATETIME);',
+      'CREATE TABLE IF NOT EXISTS "tbl_coordinates" (id INTEGER PRIMARY KEY AUTOINCREMENT, latitude TEXT NOT NULL, longitude TEXT NOT NULL, date_added DATETIME, user_id TEXT NOT NULL);',
     );
   } catch (e) {
     console.warn('Error opening db:', e);
   }
 };
-const InsetData = (latitude, longitude) => {
+const InsetData = (user_id, latitude, longitude) => {
   // Basic request
   db.execute(
-    'INSERT INTO "tbl_coordinates" ( latitude, longitude, date_added) VALUES( ?, ?, ?);',
-    [latitude, longitude, getDate(new Date())],
+    'INSERT INTO "tbl_coordinates" ( latitude, longitude, date_added, user_id) VALUES( ?, ?, ?, ?);',
+    [latitude, longitude, getDate(new Date()), user_id],
   );
 };
-const queryUsers = () => {
+const queryUsers = user_id => {
   const queryResult = db.execute(`SELECT * FROM "tbl_coordinates"`);
   var data = queryResult.rows._array;
-  console.log(data);
+  // console.log(data);
   var data_array = data.map((item, index) => {
     return {
       id: item.id,
@@ -59,6 +60,7 @@ const queryUsers = () => {
   });
   const formData = new FormData();
   formData.append('array_data', JSON.stringify(data_array));
+  formData.append('user_id', user_id);
   fetch(window.name + 'sendArrayData.php', {
     method: 'POST',
     header: {
@@ -69,6 +71,7 @@ const queryUsers = () => {
   })
     .then(response => response.json())
     .then(responseJson => {
+      console.log(responseJson);
       //   data.map((item, index) => {
       //     console.log(item);
       //   });
@@ -89,12 +92,18 @@ const dropTable = () => {
 };
 
 const MyHeadlessTask = async () => {
+  const valueString = await AsyncStorage.getItem('user_details');
+  if (valueString != null) {
+    const value = JSON.parse(valueString);
+    var user_id = value.user_id;
+  }
+  console.log(valueString);
   NetInfo.fetch().then(state => {
     console.log('Connection type', state.type);
     console.log('Is connected?', state.isConnected);
     createData();
     if (state.isConnected == true) {
-      queryUsers();
+      queryUsers(user_id); //if connection is true sync
     }
   });
   //   requestLocationPermission();
@@ -107,8 +116,8 @@ const MyHeadlessTask = async () => {
   );
   console.log(watchID);
   Geolocation.getCurrentPosition(info => {
-    console.log(info.coords.latitude);
-    InsetData(info.coords.latitude, info.coords.longitude);
+    // console.log(info.coords.latitude);
+    InsetData(user_id, info.coords.latitude, info.coords.longitude);
   });
 };
 AppRegistry.registerComponent(appName, () => App);

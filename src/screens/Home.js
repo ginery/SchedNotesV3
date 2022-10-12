@@ -14,11 +14,11 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
   useColorScheme,
   View,
   NativeModules,
   PermissionsAndroid,
+  TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 const {Background} = NativeModules;
@@ -28,7 +28,8 @@ import {
   QuickSQLiteConnection,
 } from 'react-native-quick-sqlite';
 import NetInfo from '@react-native-community/netinfo';
-
+import {NativeBaseProvider, Box, HStack, Text, Center} from 'native-base';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 const Home = () => {
   const navigation = useNavigation();
   const [dataArray, setDataArray] = React.useState([]);
@@ -109,16 +110,62 @@ const Home = () => {
   };
 
   return (
-    <SafeAreaView>
-      <View>
-        <Button
-          title="Get Data"
-          onPress={() => {
-            // console.log('stop service');
-            // Background.stopService();
-            queryUsers();
-          }}></Button>
-        <Button
+    // <SafeAreaView>
+    //   <View>
+    //     <Button
+    //       title="Get Data"
+    //       onPress={() => {
+    //         // console.log('stop service');
+    //         // Background.stopService();
+    //         queryUsers();
+    //       }}></Button>
+    //     <Button
+    //       title="Drop"
+    //       onPress={() => {
+    //         // console.log('stop service');
+    //         // Background.stopService();
+    //         dropTable();
+    //       }}></Button>
+    //     <Button
+    //       title="Start BG"
+    //       onPress={() => {
+    //         // console.log('stop service');
+    //       }}></Button>
+    //     <Button
+    //       title="Stop BG"
+    //       onPress={() => {
+    //         console.log('stop service');
+    //         Background.stopService();
+    //       }}></Button>
+    //   </View>
+    // </SafeAreaView>
+    <NativeBaseProvider>
+      <Box safeAreaTop backgroundColor="#7005a3" />
+      <HStack
+        bg="#7005a3"
+        px={3}
+        py={4}
+        justifyContent="space-between"
+        alignItems="center">
+        <HStack space={4} alignItems="center">
+          <TouchableOpacity
+            onPress={() => {
+              navigation.openDrawer();
+            }}>
+            <Icon name="bars" size={22} color="white" />
+          </TouchableOpacity>
+          <Text color="white" fontSize={20} fontWeight="bold">
+            SchedNotes@V3
+          </Text>
+        </HStack>
+        <HStack space={2}>
+          <TouchableOpacity>
+            <Icon name="map-marker-alt" size={20} color="white" />
+          </TouchableOpacity>
+        </HStack>
+      </HStack>
+      <Center>
+        {/* <Button
           title="Drop"
           onPress={() => {
             // console.log('stop service');
@@ -128,16 +175,17 @@ const Home = () => {
         <Button
           title="Start BG"
           onPress={() => {
-            // console.log('stop service');
+            Background.startService();
           }}></Button>
         <Button
           title="Stop BG"
           onPress={() => {
             console.log('stop service');
             Background.stopService();
-          }}></Button>
-      </View>
-    </SafeAreaView>
+          }}></Button> */}
+        Welcome!
+      </Center>
+    </NativeBaseProvider>
   );
 };
 

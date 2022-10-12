@@ -20,7 +20,7 @@ export default function LandingScreen({navigation}) {
     try {
       const valueString = await AsyncStorage.getItem('user_details');
       if (valueString != null) {
-        navigation.navigate('Home');
+        navigation.navigate('HomeScreen');
       } else {
         console.log('login');
         // navigate('Login');
