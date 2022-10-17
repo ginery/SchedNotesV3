@@ -3,6 +3,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import LandingScreen from './LandingPage';
 import LoginScreen from '../screens/Login';
 import HomeScreen from '../screens/Home';
+import CustomerScreen from '../screens/Customer';
 const Stack = createStackNavigator();
 const MainStackNavigator = () => {
   return (
@@ -20,6 +21,11 @@ const MainStackNavigator = () => {
       <Stack.Screen
         name="HomeScreen"
         component={HomeScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Customer"
+        component={CustomerScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>

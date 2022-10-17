@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "144791381903",
+    "project_id": "schednotesv3",
+    "storage_bucket": "schednotesv3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:144791381903:android:68b472b616c44be348cdfa",
+        "android_client_info": {
+          "package_name": "com.schednotesv3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "144791381903-jqve4i77ib63fb62eug3j496lii282or.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDq3W7NIct7NKeDr_g0fUJfepS6eCk0L_A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "144791381903-jqve4i77ib63fb62eug3j496lii282or.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

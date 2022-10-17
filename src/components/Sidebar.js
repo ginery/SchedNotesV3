@@ -93,7 +93,7 @@ export default function Sidebar({...props}) {
         <DrawerItem
           label="Customer"
           onPress={() => {
-            // props.navigation.navigate('Profile');
+            props.navigation.navigate('Customer');
           }}
           icon={() => <Icon name="user-alt" size={22} color="#7005a3" />}
         />

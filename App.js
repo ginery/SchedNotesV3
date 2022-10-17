@@ -11,7 +11,7 @@ import {PermissionsAndroid} from 'react-native';
 // local connection
 // window.name = 'http://192.168.1.118/schednotesv3/mobile/';
 // online connection
-window.name = 'https://wdysolutions.com/schednotes/mobile/mobile/';
+window.name = 'https://schednotes.wdysolutions.com/';
 
 export default function App() {
   return (
