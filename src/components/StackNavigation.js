@@ -1,9 +1,10 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import LandingScreen from './LandingPage';
 import LoginScreen from '../screens/Login';
 import HomeScreen from '../screens/Home';
 import CustomerScreen from '../screens/Customer';
+import ChatScreen from '../screens/Chat';
 const Stack = createStackNavigator();
 const MainStackNavigator = () => {
   return (
@@ -11,24 +12,29 @@ const MainStackNavigator = () => {
       <Stack.Screen
         name="Landing"
         component={LandingScreen}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Login"
         component={LoginScreen}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="HomeScreen"
         component={HomeScreen}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Customer"
         component={CustomerScreen}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
 };
-export {MainStackNavigator};
+export { MainStackNavigator };

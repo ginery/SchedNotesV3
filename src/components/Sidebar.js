@@ -17,10 +17,10 @@ import {
   Container,
   Avatar,
 } from 'native-base';
-import {Alert, TouchableOpacity, View} from 'react-native';
+import { Alert, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-export default function Sidebar({...props}) {
+export default function Sidebar({ ...props }) {
   React.useEffect(() => {
     retrieveData();
   }, [props]);
@@ -51,8 +51,8 @@ export default function Sidebar({...props}) {
         }
         overflow="hidden"
         shadow={1}
-        _light={{backgroundColor: '#dc92ff'}}
-        _dark={{backgroundColor: 'gray.700'}}>
+        _light={{ backgroundColor: '#dc92ff' }}
+        _dark={{ backgroundColor: 'gray.700' }}>
         <Stack p="4" space={3}>
           <Stack space={2}>
             <Center>
@@ -75,8 +75,8 @@ export default function Sidebar({...props}) {
               <HStack>
                 <Text
                   fontSize="sm"
-                  _light={{color: 'white'}}
-                  _dark={{color: 'white'}}
+                  _light={{ color: 'white' }}
+                  _dark={{ color: 'white' }}
                   fontWeight="500"
                   ml="-0.5"
                   mt="-1">
@@ -96,6 +96,13 @@ export default function Sidebar({...props}) {
             props.navigation.navigate('Customer');
           }}
           icon={() => <Icon name="user-alt" size={22} color="#7005a3" />}
+        />
+        <DrawerItem
+          label="Chat"
+          onPress={() => {
+            props.navigation.navigate('Chat');
+          }}
+          icon={() => <Icon name="comment" size={22} color="#7005a3" />}
         />
         {/* <DrawerItem
           label="Sign Out"
