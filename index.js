@@ -3,7 +3,12 @@
  */
 import NetInfo from '@react-native-community/netinfo';
 import Geolocation from 'react-native-geolocation-service';
-import {AppRegistry, PermissionsAndroid, NativeModules} from 'react-native';
+import {
+  AppRegistry,
+  PermissionsAndroid,
+  NativeModules,
+  AppState,
+} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
 import {
@@ -16,6 +21,7 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
 import {Alert} from 'react-native';
 import 'react-native-gesture-handler';
+// import React from "react";
 const {Background} = NativeModules;
 const db = open({name: 'myDB'});
 const setItemStorage = async (key, value) => {
@@ -202,12 +208,13 @@ const dropTable = () => {
 };
 
 const MyHeadlessTask = async () => {
+  console.log(AppState.currentState);
   const valueString = await AsyncStorage.getItem('user_details');
   if (valueString != null) {
     const value = JSON.parse(valueString);
     var user_id = value.user_id;
   }
-  console.log(valueString);
+  // console.log(valueString);
 
   //   requestLocationPermission();
   var watchID = Geolocation.watchPosition(
@@ -224,6 +231,7 @@ const MyHeadlessTask = async () => {
     NetInfo.fetch().then(state => {
       console.log('Connection type', state.type);
       console.log('Is connected?', state.isConnected);
+      // console.log(selectTable());
       createData();
       if (state.isConnected == true) {
         // queryUsers(user_id); //if connection is true sync
@@ -235,12 +243,16 @@ const MyHeadlessTask = async () => {
             user_id,
           );
         } else {
-          InsetData(user_id, info.coords.latitude, info.coords.longitude);
-          queryUsers(user_id);
+          // InsetData(user_id, info.coords.latitude, info.coords.longitude);
+          queryUsers(user_id); // sync
         }
       } else {
-        createData();
-        InsetData(user_id, info.coords.latitude, info.coords.longitude);
+        // createData();
+        InsetData(
+          user_id,
+          info.coords.latitude,
+          info.coords.longitude + '-12345',
+        );
       }
     });
   });
