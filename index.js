@@ -20,8 +20,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
 import {Alert} from 'react-native';
+import {
+  accelerometer,
+  gyroscope,
+  setUpdateIntervalForType,
+  SensorTypes,
+  magnetometer,
+} from 'react-native-sensors';
 import 'react-native-gesture-handler';
 // import React from "react";
+setUpdateIntervalForType(SensorTypes.magnetometer, 100);
 const {Background} = NativeModules;
 const db = open({name: 'myDB'});
 const setItemStorage = async (key, value) => {
@@ -105,7 +113,7 @@ const getDate = today => {
 const createData = async () => {
   try {
     db.execute(
-      'CREATE TABLE IF NOT EXISTS "tbl_coordinates" (id INTEGER PRIMARY KEY AUTOINCREMENT, latitude TEXT NOT NULL, longitude TEXT NOT NULL, date_added DATETIME, user_id TEXT NOT NULL);',
+      'CREATE TABLE IF NOT EXISTS "tbl_coordinates" (id INTEGER PRIMARY KEY AUTOINCREMENT, latitude TEXT NOT NULL, longitude TEXT NOT NULL, date_added DATETIME, user_id TEXT NOT NULL, log TEXT NOT NULL);',
     );
   } catch (e) {
     console.warn('Error opening db:', e);
@@ -114,8 +122,8 @@ const createData = async () => {
 const InsetData = (user_id, latitude, longitude) => {
   // Basic request
   db.execute(
-    'INSERT INTO "tbl_coordinates" ( latitude, longitude, date_added, user_id) VALUES( ?, ?, ?, ?);',
-    [latitude, longitude, getDate(new Date()), user_id],
+    'INSERT INTO "tbl_coordinates" (latitude, longitude, date_added, user_id, log) VALUES( ?, ?, ?, ?, ?);',
+    [latitude, longitude, getDate(new Date()), user_id, 'Offline'],
   );
 };
 const selectTable = () => {
@@ -130,6 +138,7 @@ const directOnlinesend = (latitude, longitude, user_id) => {
       longitude: longitude,
       date_added: getDate(new Date()),
       user_id: user_id,
+      log: 'Online',
     },
   ];
 
@@ -165,13 +174,14 @@ const directOnlinesend = (latitude, longitude, user_id) => {
 const queryUsers = user_id => {
   const queryResult = db.execute(`SELECT * FROM "tbl_coordinates"`);
   var data = queryResult.rows._array;
-  // console.log(data);
+  console.log(data);
   var data_array = data.map((item, index) => {
     return {
       id: item.id,
       latitude: item.latitude,
       longitude: item.longitude,
       date_added: item.date_added,
+      log: item.log, //internet status
     };
   });
   const formData = new FormData();
@@ -208,7 +218,7 @@ const dropTable = () => {
 };
 
 const MyHeadlessTask = async () => {
-  console.log(AppState.currentState);
+  // console.log(AppState.currentState);
   const valueString = await AsyncStorage.getItem('user_details');
   if (valueString != null) {
     const value = JSON.parse(valueString);
@@ -248,11 +258,7 @@ const MyHeadlessTask = async () => {
         }
       } else {
         // createData();
-        InsetData(
-          user_id,
-          info.coords.latitude,
-          info.coords.longitude + '-12345',
-        );
+        InsetData(user_id, info.coords.latitude, info.coords.longitude);
       }
     });
   });

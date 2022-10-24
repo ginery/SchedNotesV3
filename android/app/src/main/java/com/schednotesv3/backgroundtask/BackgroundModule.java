@@ -1,6 +1,7 @@
 package com.schednotesv3.backgroundtask;
 
 import android.content.Intent;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -24,6 +25,7 @@ public class BackgroundModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void startService(){
         this.reactContext.startService(new Intent(this.reactContext, BackgroundService.class));
+        Toast.makeText(reactContext, "SchedNotes at work", Toast.LENGTH_SHORT).show();
     }
     @ReactMethod
     public void stopService(){

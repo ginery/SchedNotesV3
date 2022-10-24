@@ -16,6 +16,7 @@ public class BootUpReceiver extends BroadcastReceiver {
             }
             //log("Starting the service in < 26 Mode from a BroadcastReceiver")
             context.startService(new Intent(context, BackgroundService.class));
+
         }
     }
 }

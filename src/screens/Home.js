@@ -19,9 +19,11 @@ import {
   NativeModules,
   PermissionsAndroid,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 const {Background} = NativeModules;
+import BackgroundTimer from 'react-native-background-timer';
 import {
   QuickSQLite as sqlite,
   open,
@@ -30,17 +32,53 @@ import {
 import NetInfo from '@react-native-community/netinfo';
 import {NativeBaseProvider, Box, HStack, Text, Center} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import PushNotification from 'react-native-push-notification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Home = () => {
   const navigation = useNavigation();
   const [dataArray, setDataArray] = React.useState([]);
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
+      // PushNotification.createChannel(
+      //   {
+      //     channelId: 'schednotes_channel_id', // (required)
+      //     channelName: 'My channel', // (required)
+      //     channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+      //     playSound: false, // (optional) default: true
+      //     soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      //     // (optional) default: Importance.HIGH. Int value of the Android notification importance
+      //     vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
+      //   },
+      //   created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+      // );
+
       //console.log('refreshed_home');
+      // BackgroundTimer.runBackgroundTimer(() => {
+      //   //code that will be called every 1hr
+      //   console.log('timer here 1h');
+      //   Background.startService();
+      //   localNotif();
+      // }, 3600000);
+      // BackgroundTimer.stopBackgroundTimer();
       requestLocationPermission();
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe;
+    };
   }, [navigation]);
+  const localNotif = () => {
+    PushNotification.localNotification({
+      //... You can use all the options from localNotifications
+      channelId: 'schednotes_channel_id',
+      message: 'Wake up SchedNotes!', // (required)
+      allowWhileIdle: true,
+      playSound: false, // (optional) set notification to work while on doze, default: false
+    });
+    setTimeout(() => {
+      PushNotification.cancelAllLocalNotifications();
+    }, 3000);
+  };
   const requestLocationPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -56,6 +94,13 @@ const Home = () => {
 
       if (granted_bg === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Location permission granted background');
+      } else {
+        console.log('Location permission not granted background');
+        Alert.alert(
+          'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features',
+        );
+        AsyncStorage.clear();
+        navigation.navigate('Login');
       }
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -63,6 +108,12 @@ const Home = () => {
         Background.startService();
         console.log('Location permission granted');
       } else {
+        Alert.alert(
+          'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features.',
+        );
+        AsyncStorage.clear();
+        navigation.navigate('Login');
+
         console.log('Location permission denied');
       }
     } catch (err) {

@@ -1,6 +1,12 @@
 import * as React from 'react';
-import {View, useWindowDimensions, Alert, TouchableOpacity} from 'react-native';
-import {NativeBaseProvider, Center, Spinner} from 'native-base';
+import {
+  View,
+  useWindowDimensions,
+  Alert,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import {NativeBaseProvider, Center, Spinner, Text} from 'native-base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import {useNavigation} from '@react-navigation/native';
 export default function LandingScreen({navigation}) {
@@ -35,7 +41,9 @@ export default function LandingScreen({navigation}) {
   return (
     <NativeBaseProvider>
       <Center flex={1} px="3">
-        <Spinner accessibilityLabel="Loading posts" size="lg" color="#54b5df" />
+        {/* <Spinner accessibilityLabel="Loading posts" size="lg" color="#7005a3" /> */}
+        <ActivityIndicator size={50} color="#7005a3" />
+        <Text>Rendering...</Text>
       </Center>
     </NativeBaseProvider>
   );

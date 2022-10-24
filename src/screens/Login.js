@@ -18,7 +18,6 @@ import {
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import PushNotification from 'react-native-push-notification';
 import {NativeModules} from 'react-native';
 import {ItemClick} from 'native-base/lib/typescript/components/composites/Typeahead/useTypeahead/types';
 const {Background} = NativeModules;
@@ -30,27 +29,6 @@ export default function LoginScreen() {
   const [buttonStatus, setButtonStatus] = React.useState(false);
 
   React.useEffect(() => {
-    // PushNotification.createChannel(
-    //   {
-    //     channelId: 'schednotes_channel_id', // (required)
-    //     channelName: 'My channel', // (required)
-    //     channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-    //     playSound: false, // (optional) default: true
-    //     soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-    //     // (optional) default: Importance.HIGH. Int value of the Android notification importance
-    //     vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
-    //   },
-    //   created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
-    // );
-    // PushNotification.localNotificationSchedule({
-    //   //... You can use all the options from localNotifications
-    //   channelId: 'schednotes_channel_id',
-    //   message: 'Wake up SchedNotes!', // (required)
-    //   date: getDate(), // in 5 secs
-    //   allowWhileIdle: true,
-    //   playSound: false, // (optional) set notification to work while on doze, default: false
-    // });
-
     const unsubscribe = navigation.addListener('focus', () => {
       //console.log('refreshed_home');
       setButtonStatus(false);
@@ -141,7 +119,7 @@ export default function LoginScreen() {
             });
             // setButtonStatus(true);
             setTimeout(function () {
-              navigation.navigate('HomeScreen');
+              navigation.navigate('Landing');
             }, 1000);
           } else if (data.response == 0) {
             setButtonStatus(false);
@@ -175,7 +153,7 @@ export default function LoginScreen() {
         })
         .catch(error => {
           console.error(error);
-          //  Alert.alert('Internet Connection Error');
+          Alert.alert('Internet Connection Error');
         });
     }
   };

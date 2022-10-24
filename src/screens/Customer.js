@@ -15,7 +15,6 @@ import {
   FormControl,
   Input,
   Button,
-  Select,
   CheckIcon,
   Spinner,
   Icon,
@@ -27,6 +26,7 @@ import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import {color} from 'react-native-reanimated';
 import Geolocation from 'react-native-geolocation-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Picker} from '@react-native-picker/picker';
 export default function Customer({navigation}) {
   React.useEffect(() => {
     getCustomer();
@@ -476,7 +476,7 @@ export default function Customer({navigation}) {
               <FormControl.Label>
                 Farmtype <Text style={{color: 'red'}}>*</Text>
               </FormControl.Label>
-              <Select
+              <Picker
                 selectedValue={farmtype}
                 minWidth="200"
                 accessibilityLabel="Choose Service"
@@ -487,18 +487,18 @@ export default function Customer({navigation}) {
                 }}
                 mt={1}
                 onValueChange={itemValue => setFarmType(itemValue)}>
-                <Select.Item label="Farrow to finish" value="FF" />
-                <Select.Item label="Piglet dispersal" value="PD" />
-                <Select.Item label="Fatteners" value="F" />
-                <Select.Item label="Layer" value="L" />
-              </Select>
+                <Picker.Item label="Farrow to finish" value="FF" />
+                <Picker.Item label="Piglet dispersal" value="PD" />
+                <Picker.Item label="Fatteners" value="F" />
+                <Picker.Item label="Layer" value="L" />
+              </Picker>
             </FormControl>
             <FormControl mt="3">
               <FormControl.Label>
                 Branch
                 <Text style={{color: 'red'}}>*</Text>
               </FormControl.Label>
-              <Select
+              <Picker
                 selectedValue={branch_id}
                 minWidth="200"
                 accessibilityLabel="Choose Branch"
@@ -511,13 +511,13 @@ export default function Customer({navigation}) {
                 onValueChange={itemValue => setBranchId(itemValue)}>
                 {branchData.map((item, index) => {
                   return (
-                    <Select.Item
+                    <Picker.Item
                       label={item.branch_name}
                       value={item.branch_id}
                     />
                   );
                 })}
-              </Select>
+              </Picker>
             </FormControl>
             <FormControl mt="3">
               <FormControl.Label>Contact Number (Optional)</FormControl.Label>
@@ -645,7 +645,7 @@ export default function Customer({navigation}) {
                   <FormControl.Label>
                     Farmtype <Text style={{color: 'red'}}>*</Text>
                   </FormControl.Label>
-                  <Select
+                  <Picker
                     selectedValue={farmtype}
                     minWidth="200"
                     accessibilityLabel="Choose Service"
@@ -656,18 +656,18 @@ export default function Customer({navigation}) {
                     }}
                     mt={1}
                     onValueChange={itemValue => setFarmType(itemValue)}>
-                    <Select.Item label="Farrow to finish" value="FF" />
-                    <Select.Item label="Piglet dispersal" value="PD" />
-                    <Select.Item label="Fatteners" value="F" />
-                    <Select.Item label="Layer" value="L" />
-                  </Select>
+                    <Picker.Item label="Farrow to finish" value="FF" />
+                    <Picker.Item label="Piglet dispersal" value="PD" />
+                    <Picker.Item label="Fatteners" value="F" />
+                    <Picker.Item label="Layer" value="L" />
+                  </Picker>
                 </FormControl>
                 <FormControl mt="3">
                   <FormControl.Label>
                     Branch
                     <Text style={{color: 'red'}}>*</Text>
                   </FormControl.Label>
-                  <Select
+                  <Picker
                     selectedValue={branch_id}
                     minWidth="200"
                     accessibilityLabel="Choose Branch"
@@ -680,13 +680,13 @@ export default function Customer({navigation}) {
                     onValueChange={itemValue => setBranchId(itemValue)}>
                     {branchData.map((item, index) => {
                       return (
-                        <Select.Item
+                        <Picker.Item
                           label={item.branch_name}
                           value={item.branch_id}
                         />
                       );
                     })}
-                  </Select>
+                  </Picker>
                 </FormControl>
                 <FormControl mt="3">
                   <FormControl.Label>

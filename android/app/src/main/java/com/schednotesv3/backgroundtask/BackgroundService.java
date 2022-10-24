@@ -5,17 +5,27 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
 import com.facebook.react.HeadlessJsTaskService;
 import com.schednotesv3.MainActivity;
 import com.schednotesv3.R;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 public class BackgroundService extends Service {
     private static final int SERVICE_NOTIFICATION_ID = 12345;
@@ -71,6 +81,37 @@ public class BackgroundService extends Service {
                 .setOngoing(true)
                 .build();
         startForeground(SERVICE_NOTIFICATION_ID, notification);
+//        onDisplayPopupPermission();
+
         return START_STICKY;
     }
+//    private void onDisplayPopupPermission() {
+//        Toast.makeText(getApplicationContext(), "test PopUp", Toast.LENGTH_SHORT).show();
+//        Intent intent = new Intent();
+//        intent.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+//        startActivity(intent);
+////        if(Build.BRAND.equalsIgnoreCase("xiaomi") ){
+////
+////            Intent intent = new Intent();
+////            intent.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+////            startActivity(intent);
+////
+////
+////        }else if(Build.BRAND.equalsIgnoreCase("Letv")){
+////
+////            Intent intent = new Intent();
+////            intent.setComponent(new ComponentName("com.letv.android.letvsafe", "com.letv.android.letvsafe.AutobootManageActivity"));
+////            startActivity(intent);
+////
+////        }
+////        else if(Build.BRAND.equalsIgnoreCase("Honor")){
+////
+////            Intent intent = new Intent();
+////            intent.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
+////            startActivity(intent);
+////
+////        }
+//    }
+
+
 }
