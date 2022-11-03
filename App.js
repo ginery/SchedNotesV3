@@ -9,7 +9,7 @@ import * as RootNavigation from './src/components/RootNavigation';
 import {PermissionsAndroid} from 'react-native';
 
 // local connection
-// window.name = 'http://192.168.1.118/schednotesv3/mobile/';
+// window.name = 'http://192.168.1.107/schednotes_new/';
 // online connection
 window.name = 'https://schednotes.wdysolutions.com/';
 
