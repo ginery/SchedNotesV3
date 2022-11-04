@@ -64,9 +64,7 @@ export default function Sidebar({...props}) {
                 bg="indigo.500"
                 alignSelf="center"
                 size="2xl"
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1510771463146-e89e6e86560e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=627&q=80',
-                }}>
+                source={require('../assets/user_logo.png')}>
                 RS
               </Avatar>
               <Heading size="md" ml="-1">

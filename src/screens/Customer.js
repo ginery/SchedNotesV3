@@ -40,7 +40,7 @@ import {
   QuickSQLiteConnection,
 } from 'react-native-quick-sqlite';
 import NetInfo from '@react-native-community/netinfo';
-const db = open({name: 'myDB'});
+const db = open({name: 'db_customer'});
 export default function Customer({navigation}) {
   React.useEffect(() => {
     retrieveUser();
@@ -564,13 +564,29 @@ export default function Customer({navigation}) {
               style={{
                 // borderColor: 'black',
                 // borderWidth: 1,
+
                 width: '60%',
               }}
               rounded="md">
-              <Text>Customer</Text>
+              <Text
+                style={{
+                  // borderColor: 'black',
+                  // borderWidth: 1,
+                  alignSelf: 'flex-start',
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                }}>
+                Customer
+              </Text>
             </Center>
 
-            <Center w="40%">
+            <Center
+              w="40%"
+              style={{
+                // borderColor: 'black',
+                // borderWidth: 1,
+                alignItems: 'flex-end',
+              }}>
               <Button
                 onPress={() => {
                   updateData();
@@ -619,9 +635,11 @@ export default function Customer({navigation}) {
                     <HStack space={[2, 3]} justifyContent="space-between">
                       <Avatar
                         size="48px"
-                        source={{
-                          uri: 'https://images.unsplash.com/photo-1510771463146-e89e6e86560e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=627&q=80',
-                        }}
+                        source={
+                          item.farm_type == 'L'
+                            ? require('../assets/layer.png')
+                            : require('../assets/pig.png')
+                        }
                       />
                       <VStack
                         w="50%"

@@ -174,7 +174,7 @@ const directOnlinesend = (latitude, longitude, user_id) => {
 const queryUsers = user_id => {
   const queryResult = db.execute(`SELECT * FROM "tbl_coordinates"`);
   var data = queryResult.rows._array;
-  console.log(data);
+  // console.log(data);
   var data_array = data.map((item, index) => {
     return {
       id: item.id,
@@ -197,7 +197,7 @@ const queryUsers = user_id => {
   })
     .then(response => response.json())
     .then(responseJson => {
-      console.log(responseJson);
+      //  console.log(responseJson);
       //   data.map((item, index) => {
       //     console.log(item);
       //   });
@@ -210,6 +210,7 @@ const queryUsers = user_id => {
     })
     .catch(error => {
       console.error(error);
+
       // Alert.alert('Internet Connection Error');
     });
 };
@@ -231,10 +232,13 @@ const MyHeadlessTask = async () => {
     latestposition => {
       //   console.log(latestposition);
     },
-    error => console.log(error),
+    error => {
+      console.log(error);
+      InsetData(user_id, '', '');
+    },
     {enableHighAccuracy: true, timeout: 3000, maximumAge: 3000},
   );
-  console.log(watchID);
+  // console.log(watchID);
   Geolocation.getCurrentPosition(info => {
     // console.log(info.coords.latitude);
 
