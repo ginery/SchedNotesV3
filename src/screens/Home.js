@@ -87,20 +87,20 @@ const Home = () => {
           message: 'MyMapApp needs access to your location',
         },
       );
-      const granted_bg = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-      );
+      // const granted_bg = await PermissionsAndroid.request(
+      //   PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+      // );
 
-      if (granted_bg === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Location permission granted background');
-      } else {
-        console.log('Location permission not granted background');
-        Alert.alert(
-          'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features',
-        );
-        AsyncStorage.clear();
-        navigation.navigate('Login');
-      }
+      // if (granted_bg === PermissionsAndroid.RESULTS.GRANTED) {
+      //   console.log('Location permission granted background');
+      // } else {
+      //   console.log('Location permission not granted background');
+      //   Alert.alert(
+      //     'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features',
+      //   );
+      //   AsyncStorage.clear();
+      //   navigation.navigate('Login');
+      // }
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         //   Geolocation.getCurrentPosition(info => console.log(info));
