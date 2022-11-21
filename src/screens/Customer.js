@@ -191,7 +191,7 @@ export default function Customer({navigation}) {
     // var data = queryResult.rows._array;
 
     db.executeAsync('SELECT * FROM "tbl_branch";', []).then(({rows}) => {
-      console.log(rows._array);
+      // console.log(rows._array);
 
       setBranchData(rows._array);
     });
@@ -220,8 +220,8 @@ export default function Customer({navigation}) {
   };
 
   const getBranch = () => {
-    console.log('branch user_id: ' + user_id);
-    createTableBranch();
+    // console.log('branch user_id: ' + user_id);
+
     const formData = new FormData();
     formData.append('user_id', user_id);
     fetch(window.name + 'branches', {
@@ -248,8 +248,11 @@ export default function Customer({navigation}) {
             );
           });
           // console.log(data);
+
           selectTableBranch();
           // setBranchData(data);
+        } else {
+          selectTableBranch();
         }
       })
       .catch(error => {
@@ -260,20 +263,19 @@ export default function Customer({navigation}) {
   const getCustomer = () => {
     setLoadData(false);
     // console.log(loadData);
-
+    // createData();
+    const formData = new FormData();
+    formData.append('user_id', user_id);
     fetch(window.name + 'customers', {
-      method: 'GET',
+      method: 'POST',
       headers: {
         Accept: 'applicatiion/json',
         'Content-Type': 'multipart/form-data',
       },
+      body: formData,
     })
       .then(response => response.json())
       .then(responseJson => {
-        // dropTable();
-        // createData();
-        // createTableBranch();
-        // rconsole.log(responseJson);
         if (responseJson.array_data != '') {
           responseJson.array_data.map(function (item, index) {
             InsertData(
@@ -297,7 +299,10 @@ export default function Customer({navigation}) {
           Alert.alert('Success!');
           // console.log(responseJson);
         } else {
-          setLoadData(false);
+          console.log('get customer wala data');
+          selectTableBranch();
+          selectTable();
+          setLoadData(true);
         }
       })
       .catch(error => {
@@ -310,7 +315,7 @@ export default function Customer({navigation}) {
   const getLocation = () => {
     setBtnLocation(true);
     Geolocation.getCurrentPosition(info => {
-      console.log(info);
+      // console.log(info);
 
       setLatitude(info.coords.latitude);
       setLongitude(info.coords.longitude);
@@ -342,9 +347,19 @@ export default function Customer({navigation}) {
       // console.log('customer', rows);
       var data = rows._array;
       if (data == '') {
+        console.log('wala sa data');
+        setUpdateBotton(false);
+        setLoadData(true);
+        dropTable();
+        createData();
+        createTableBranch();
         getBranch();
         getCustomer();
       } else {
+        dropTable();
+        createData();
+        createTableBranch();
+        console.log('may data unod');
         var data_array = data.map((item, index) => {
           return {
             company_id: item.company_id,
@@ -380,7 +395,6 @@ export default function Customer({navigation}) {
             //   });
             if (responseJson.array_data != '') {
               if (responseJson.array_data[0].response == 1) {
-                dropTable();
                 getBranch();
                 getCustomer();
                 setUpdateBotton(false);
@@ -389,6 +403,7 @@ export default function Customer({navigation}) {
                 Alert.alert('Customer already updated!');
                 setUpdateBotton(false);
               }
+            } else {
             }
           })
           .catch(error => {
@@ -509,10 +524,9 @@ export default function Customer({navigation}) {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
+        // console.log(responseJson);
         // if (responseJson.array_data != '') {
         //   var data = responseJson.array_data[0];
-
         // }
       })
       .catch(error => {
@@ -660,14 +674,14 @@ export default function Customer({navigation}) {
                           }}
                           color="coolGray.800"
                           alignSelf="flex-start">
-                          <Badge
+                          {/* <Badge
                             colorScheme={
                               item.update_status == 0 ? 'success' : 'info'
                             }
                             alignSelf="center"
                             variant="solid">
                             {item.update_status == 0 ? 'INCOMPLETE' : 'UPDATED'}
-                          </Badge>
+                          </Badge> */}
                           {/* {item.update_status} */}
                         </Text>
                       </Center>
@@ -820,7 +834,10 @@ export default function Customer({navigation}) {
                 <Picker.Item label="Select Branch" value="" />
                 {branchData.map((item, index) => {
                   return (
-                    <Picker.Item label={item.branch} value={item.branch_id} />
+                    <Picker.Item
+                      label={item.branch + ' (' + item.province + ')'}
+                      value={item.branch_id}
+                    />
                   );
                 })}
               </Picker>
