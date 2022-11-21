@@ -23,7 +23,6 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 const {Background} = NativeModules;
-import BackgroundTimer from 'react-native-background-timer';
 import {
   QuickSQLite as sqlite,
   open,

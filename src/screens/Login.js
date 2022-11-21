@@ -99,6 +99,7 @@ export default function LoginScreen() {
       })
         .then(response => response.json())
         .then(responseJson => {
+          console.log(responseJson);
           var data = responseJson.array_data[0];
           if (data.response == 1) {
             toast.show({
@@ -117,7 +118,7 @@ export default function LoginScreen() {
               // user_mname: data.user_mname,
               // user_lname: data.user_lname,
             });
-            // setButtonStatus(true);
+            setButtonStatus(true);
             setTimeout(function () {
               navigation.navigate('Landing');
             }, 1000);
@@ -149,9 +150,9 @@ export default function LoginScreen() {
             });
             setButtonStatus(false);
           }
-          console.log(responseJson);
         })
         .catch(error => {
+          setButtonStatus(false);
           console.error(error);
           Alert.alert('Internet Connection Error');
         });

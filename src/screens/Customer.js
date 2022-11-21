@@ -40,7 +40,7 @@ import {
   QuickSQLiteConnection,
 } from 'react-native-quick-sqlite';
 import NetInfo from '@react-native-community/netinfo';
-const db = open({name: 'db_customer'});
+const db = open({name: 'myDB'});
 export default function Customer({navigation}) {
   React.useEffect(() => {
     retrieveUser();
@@ -104,39 +104,16 @@ export default function Customer({navigation}) {
       console.warn('Error opening db:', e);
     }
   };
-  const dropTable = () => {
-    const queryResult = db.execute(`DROP TABLE IF EXISTS tbl_customer`);
-    db.execute(`DROP TABLE IF EXISTS tbl_branch`);
+  const dropTable = async () => {
+    try {
+      db.execute(`DROP TABLE IF EXISTS tbl_customer`);
+      db.execute(`DROP TABLE IF EXISTS tbl_branch`);
+    } catch (e) {
+      console.warn('Error opening db:', e);
+    }
   };
-  const syncData = () => {
-    NetInfo.fetch().then(state => {
-      console.log('Connection type', state.type);
-      console.log('Is connected?', state.isConnected);
-      // console.log(selectTable());
-      // createData();
-      if (state.isConnected == true) {
-        // queryUsers(user_id); //if connection is true sync
-        // dropTable();
-        // if (selectTable() == '') {
-        //   directOnlinesend(
-        //     info.coords.latitude,
-        //     info.coords.longitude,
-        //     user_id,
-        //   );
-        // } else {
-        //   // InsetData(user_id, info.coords.latitude, info.coords.longitude);
-        //   queryUsers(user_id); // sync
-        // }
-        getCustomer();
-        getBranch();
-        selectTable();
-      } else {
-        // createData();
-        selectTable();
-      }
-    });
-  };
-  const insertDataBranch = (
+
+  const insertDataBranch = async (
     branch_id,
     branch,
     island_group,
@@ -146,21 +123,25 @@ export default function Customer({navigation}) {
     remarks,
     status,
   ) => {
-    db.execute(
-      'INSERT INTO "tbl_branch" (branch_id,island_group, region, province, company_id, branch, remarks, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?);',
-      [
-        branch_id,
-        island_group,
-        region,
-        province,
-        company_id,
-        branch,
-        remarks,
-        status,
-      ],
-    );
+    try {
+      db.execute(
+        'INSERT INTO "tbl_branch" (branch_id ,island_group, region, province, company_id, branch, remarks, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?);',
+        [
+          branch_id,
+          island_group,
+          region,
+          province,
+          company_id,
+          branch,
+          remarks,
+          status,
+        ],
+      );
+    } catch (e) {
+      console.warn('Error opening db:', e);
+    }
   };
-  const InsertData = (
+  const InsertData = async (
     company_id,
     branch_id,
     farmname,
@@ -175,24 +156,28 @@ export default function Customer({navigation}) {
     sync_status,
   ) => {
     // Basic request
-    db.execute(
-      'INSERT INTO "tbl_customer" (company_id, branch_id, farm_name, customer, farm_type, population, contact_no, location, date_added, encoded_by, update_status, sync_status) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);',
-      [
-        company_id,
-        branch_id,
-        farmname,
-        customer,
-        farm_type,
-        population,
-        contact_no,
-        location,
-        date_added,
-        // getDate(new Date()),
-        encoded_by,
-        update_status,
-        sync_status,
-      ],
-    );
+    try {
+      db.execute(
+        'INSERT INTO "tbl_customer" (company_id, branch_id, farm_name, customer, farm_type, population, contact_no, location, date_added, encoded_by, update_status, sync_status) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);',
+        [
+          company_id,
+          branch_id,
+          farmname,
+          customer,
+          farm_type,
+          population,
+          contact_no,
+          location,
+          date_added,
+          // getDate(new Date()),
+          encoded_by,
+          update_status,
+          sync_status,
+        ],
+      );
+    } catch (e) {
+      console.warn('Error opening db:', e);
+    }
   };
   const selectTable = user_id => {
     db.executeAsync('SELECT * FROM "tbl_customer";', []).then(({rows}) => {
@@ -206,7 +191,7 @@ export default function Customer({navigation}) {
     // var data = queryResult.rows._array;
 
     db.executeAsync('SELECT * FROM "tbl_branch";', []).then(({rows}) => {
-      // console.log('customer', rows);
+      console.log(rows._array);
 
       setBranchData(rows._array);
     });
@@ -226,6 +211,7 @@ export default function Customer({navigation}) {
       if (valueString != null) {
         const value = JSON.parse(valueString);
         setUserId(value.user_id);
+
         // console.log(value.user_id);
       }
     } catch (error) {
@@ -234,22 +220,25 @@ export default function Customer({navigation}) {
   };
 
   const getBranch = () => {
+    console.log('branch user_id: ' + user_id);
     createTableBranch();
+    const formData = new FormData();
+    formData.append('user_id', user_id);
     fetch(window.name + 'branches', {
-      method: 'GET',
-      headers: {
-        Accept: 'applicatiion/json',
+      method: 'POST',
+      header: {
+        Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
       },
+      body: formData,
     })
       .then(response => response.json())
       .then(responseJson => {
-        // console.log(responseJson);
         if (responseJson.array_data != '') {
           var data = responseJson.array_data.map(function (item, index) {
             insertDataBranch(
               item.branch_id,
-              item.branch_name,
+              item.branch,
               item.island_group,
               item.region,
               item.province,
@@ -258,6 +247,7 @@ export default function Customer({navigation}) {
               item.status,
             );
           });
+          // console.log(data);
           selectTableBranch();
           // setBranchData(data);
         }
@@ -280,9 +270,9 @@ export default function Customer({navigation}) {
     })
       .then(response => response.json())
       .then(responseJson => {
-        dropTable();
-        createData();
-        createTableBranch();
+        // dropTable();
+        // createData();
+        // createTableBranch();
         // rconsole.log(responseJson);
         if (responseJson.array_data != '') {
           responseJson.array_data.map(function (item, index) {
@@ -305,7 +295,7 @@ export default function Customer({navigation}) {
           selectTable();
           setUpdateBotton(false);
           Alert.alert('Success!');
-          console.log(responseJson);
+          // console.log(responseJson);
         } else {
           setLoadData(false);
         }
@@ -371,7 +361,7 @@ export default function Customer({navigation}) {
             sync_status: item.sync_status,
           };
         });
-        console.log(data);
+        // console.log(data);
         const formData = new FormData();
         formData.append('array_data', JSON.stringify(data_array));
         fetch(window.name + 'customer/store', {
@@ -384,7 +374,7 @@ export default function Customer({navigation}) {
         })
           .then(response => response.json())
           .then(responseJson => {
-            console.log(responseJson);
+            // console.log(responseJson);
             //   data.map((item, index) => {
             //     console.log(item);
             //   });
@@ -410,7 +400,7 @@ export default function Customer({navigation}) {
     });
   };
   const addCustomer = () => {
-    console.log(user_id);
+    // console.log(user_id);
     setBtnSave(true);
     if (
       user_id == '' ||
@@ -433,7 +423,7 @@ export default function Customer({navigation}) {
       ).then(({rows}) => {
         setBtnSave(false);
         var data = rows._array;
-        console.log(data[0].counter);
+        // console.log(data[0].counter);
         if (data[0].counter > 0) {
           Alert.alert('Customer Already Exist.');
         } else {
@@ -685,7 +675,7 @@ export default function Customer({navigation}) {
                   </Box>
                 </TouchableOpacity>
               )}
-              keyExtractor={item => item.key}
+              keyExtractor={item => item.customer_id}
               refreshControl={
                 <RefreshControl
                   title="Pull to refresh"
