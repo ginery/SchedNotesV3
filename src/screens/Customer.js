@@ -86,6 +86,7 @@ export default function Customer({navigation}) {
   const [customerDetails, setCustomerDetails] = React.useState(false);
   const [customer_id, setCustomerId] = React.useState(0);
   const [updateBotton, setUpdateBotton] = React.useState(false);
+  const [pinLoading, setPinLoading] = React.useState(false);
   const createData = async () => {
     try {
       db.execute(
@@ -316,7 +317,7 @@ export default function Customer({navigation}) {
     setBtnLocation(true);
     Geolocation.getCurrentPosition(info => {
       // console.log(info);
-
+      setPinLoading(false);
       setLatitude(info.coords.latitude);
       setLongitude(info.coords.longitude);
     });
@@ -863,6 +864,7 @@ export default function Customer({navigation}) {
                 disabled={btnLocation}
                 flex="1"
                 onPress={() => {
+                  setPinLoading(true);
                   getLocation();
                 }}>
                 {/* {btnLocation == true && (
@@ -876,13 +878,13 @@ export default function Customer({navigation}) {
                   <Icon name="map-marker" style={{fontSize: 15}} /> Pin Location
                 </Text> */}
                 <HStack space={2} alignItems="center">
-                  {/* {btnLocation == true && (
+                  {pinLoading == true && (
                     <Spinner
                       accessibilityLabel="Loading posts"
                       size="sm"
                       color="white"
                     />
-                  )} */}
+                  )}
 
                   <Heading color="white" fontSize="md">
                     {btnLocation ? 'Pinned' : 'Pin Location'}
@@ -904,6 +906,7 @@ export default function Customer({navigation}) {
               colorScheme="emerald"
               onPress={() => {
                 addCustomer();
+                setBtnSave(true);
               }}>
               <HStack space={2} alignItems="center">
                 {btnSave == true && (
