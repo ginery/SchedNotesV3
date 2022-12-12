@@ -218,54 +218,54 @@ const dropTable = () => {
   const queryResult = db.execute(`DROP TABLE IF EXISTS tbl_coordinates`);
 };
 
-const MyHeadlessTask = async () => {
-  // console.log(AppState.currentState);
-  const valueString = await AsyncStorage.getItem('user_details');
-  if (valueString != null) {
-    const value = JSON.parse(valueString);
-    var user_id = value.user_id;
-  }
-  // console.log(valueString);
+// const MyHeadlessTask = async () => {
+//   // console.log(AppState.currentState);
+//   const valueString = await AsyncStorage.getItem('user_details');
+//   if (valueString != null) {
+//     const value = JSON.parse(valueString);
+//     var user_id = value.user_id;
+//   }
+//   // console.log(valueString);
 
-  //   requestLocationPermission();
-  var watchID = Geolocation.watchPosition(
-    latestposition => {
-      //   console.log(latestposition);
-    },
-    error => {
-      console.log(error);
-      InsetData(user_id, '', '');
-    },
-    {enableHighAccuracy: true, timeout: 3000, maximumAge: 3000},
-  );
-  // console.log(watchID);
-  Geolocation.getCurrentPosition(info => {
-    // console.log(info.coords.latitude);
+//   //   requestLocationPermission();
+//   var watchID = Geolocation.watchPosition(
+//     latestposition => {
+//       //   console.log(latestposition);
+//     },
+//     error => {
+//       console.log(error);
+//       InsetData(user_id, '', '');
+//     },
+//     {enableHighAccuracy: true, timeout: 3000, maximumAge: 3000},
+//   );
+//   // console.log(watchID);
+//   Geolocation.getCurrentPosition(info => {
+//     // console.log(info.coords.latitude);
 
-    NetInfo.fetch().then(state => {
-      console.log('Connection type', state.type);
-      console.log('Is connected?', state.isConnected);
-      // console.log(selectTable());
-      createData();
-      if (state.isConnected == true) {
-        // queryUsers(user_id); //if connection is true sync
-        // dropTable();
-        if (selectTable() == '') {
-          directOnlinesend(
-            info.coords.latitude,
-            info.coords.longitude,
-            user_id,
-          );
-        } else {
-          // InsetData(user_id, info.coords.latitude, info.coords.longitude);
-          queryUsers(user_id); // sync
-        }
-      } else {
-        // createData();
-        InsetData(user_id, info.coords.latitude, info.coords.longitude);
-      }
-    });
-  });
-};
+//     NetInfo.fetch().then(state => {
+//       console.log('Connection type', state.type);
+//       console.log('Is connected?', state.isConnected);
+//       // console.log(selectTable());
+//       createData();
+//       if (state.isConnected == true) {
+//         // queryUsers(user_id); //if connection is true sync
+//         // dropTable();
+//         if (selectTable() == '') {
+//           directOnlinesend(
+//             info.coords.latitude,
+//             info.coords.longitude,
+//             user_id,
+//           );
+//         } else {
+//           // InsetData(user_id, info.coords.latitude, info.coords.longitude);
+//           queryUsers(user_id); // sync
+//         }
+//       } else {
+//         // createData();
+//         InsetData(user_id, info.coords.latitude, info.coords.longitude);
+//       }
+//     });
+//   });
+// };
 AppRegistry.registerComponent(appName, () => App);
-AppRegistry.registerHeadlessTask('Background', () => MyHeadlessTask);
+// AppRegistry.registerHeadlessTask('Background', () => MyHeadlessTask);
