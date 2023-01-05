@@ -357,9 +357,6 @@ export default function Customer({navigation}) {
         getBranch();
         getCustomer();
       } else {
-        dropTable();
-        createData();
-        createTableBranch();
         console.log('may data unod');
         var data_array = data.map((item, index) => {
           return {
@@ -394,6 +391,9 @@ export default function Customer({navigation}) {
             //   data.map((item, index) => {
             //     console.log(item);
             //   });
+            dropTable();
+            createData();
+            createTableBranch();
             if (responseJson.array_data != '') {
               if (responseJson.array_data[0].response == 1) {
                 getBranch();
