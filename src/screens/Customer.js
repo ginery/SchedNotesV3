@@ -10,7 +10,6 @@ import {
   Spacer,
   Center,
   NativeBaseProvider,
-  Modal,
   FormControl,
   Input,
   Button,
@@ -19,16 +18,19 @@ import {
   Icon,
   Badge,
   Skeleton,
+  useToast,
 } from 'native-base';
 import {
   RefreshControl,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  FlatList,
   SafeAreaView,
+  FlatList,
   View,
+  Modal,
 } from 'react-native';
+// import FlatList from 'react-native-gesture-handler';
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import {color} from 'react-native-reanimated';
 import Geolocation from 'react-native-geolocation-service';
@@ -64,7 +66,7 @@ export default function Customer({navigation}) {
 
     return unsubscribe;
   }, [navigation]);
-
+  const toast = useToast();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [modalVisibleUpdate, setModalVisibleUpdate] = React.useState(false);
   const [service, setService] = React.useState('');
@@ -86,6 +88,7 @@ export default function Customer({navigation}) {
   const [customerDetails, setCustomerDetails] = React.useState(false);
   const [customer_id, setCustomerId] = React.useState(0);
   const [updateBotton, setUpdateBotton] = React.useState(false);
+  const [page, setPage] = React.useState(10);
   const createData = async () => {
     try {
       db.execute(
@@ -260,7 +263,7 @@ export default function Customer({navigation}) {
         Alert.alert('Internet Connection Error');
       });
   };
-  const getCustomer = () => {
+  const getCustomer = async (keyword, page, limit = 10) => {
     setLoadData(false);
     // console.log(loadData);
     // createData();
@@ -465,7 +468,7 @@ export default function Customer({navigation}) {
           setLatitude('');
           setLongitude('');
           setBtnLocation(false);
-          setModalVisible(false);
+          // setModalVisible(false);
           setBtnSave(false);
           selectTable();
         }
@@ -489,21 +492,21 @@ export default function Customer({navigation}) {
     })
       .then(response => response.json())
       .then(responseJson => {
-        // console.log(responseJson);
-        if (responseJson.array_data != '') {
-          var data = responseJson.array_data[0];
-          // console.log(data.customer);
-          setCustomerId(data.customer_id);
-          setFullname(data.customer);
-          setFarmname(data.farm_name);
-          setFarmType(data.farm_type);
-          setBranchId(data.branch_id);
-          setContactNum(data.contact_num);
-          setPopulation(data.population);
-          setLatitude('');
-          setLongitude('');
-          setCustomerDetails(true);
-        }
+        console.log(responseJson);
+        // if (responseJson.array_data != '') {
+        //   var data = responseJson.array_data[0];
+        //   // console.log(data.customer);
+        //   setCustomerId(data.customer_id);
+        //   setFullname(data.customer);
+        //   setFarmname(data.farm_name);
+        //   setFarmType(data.farm_type);
+        //   setBranchId(data.branch_id);
+        //   setContactNum(data.contact_num);
+        //   setPopulation(data.population);
+        //   setLatitude('');
+        //   setLongitude('');
+        //   setCustomerDetails(true);
+        // }
       })
       .catch(error => {
         console.error(error);
@@ -533,6 +536,100 @@ export default function Customer({navigation}) {
         console.error(error);
         Alert.alert(error.toString());
       });
+  };
+  const MoreData = () => {
+    console.log('Load more');
+    setPage(page + 10);
+    toast.show({
+      placement: 'bottom',
+      render: () => {
+        return (
+          <Box bg="success.500" px="2" py="1" rounded="sm" mb={5}>
+            <Text color="white">Additional data has been loaded.</Text>
+          </Box>
+        );
+      },
+    });
+    // getCustomer();
+  };
+  const RenderViewData = ({update_status, farm_type, farm_name}) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          console.log('update');
+          // setModalVisible(true);
+          // getCustomerDetails(item.customer_id);
+        }}
+        disabled={update_status == 0 ? false : true}>
+        <Box
+          borderBottomWidth="1"
+          _dark={{
+            borderColor: 'muted.50',
+          }}
+          borderColor="muted.800"
+          pl={['0', '4']}
+          pr={['0', '5']}
+          py="2">
+          <HStack space={[2, 3]} justifyContent="space-between">
+            <Avatar
+              size="48px"
+              source={
+                farm_type == 'L'
+                  ? require('../assets/layer.png')
+                  : require('../assets/pig.png')
+              }
+            />
+            <VStack
+              w="50%"
+              // style={{borderColor: 'red', borderWidth: 1}}
+            >
+              <Text
+                _dark={{
+                  color: 'warmGray.50',
+                }}
+                color="coolGray.800"
+                bold>
+                {farm_name}
+              </Text>
+              <Text
+                color="coolGray.600"
+                _dark={{
+                  color: 'warmGray.200',
+                }}>
+                test
+              </Text>
+            </VStack>
+            <Spacer />
+            <Center>
+              <Text
+                fontSize="xs"
+                _dark={{
+                  color: 'warmGray.50',
+                }}
+                color="coolGray.800"
+                alignSelf="flex-start">
+                <Badge
+                  colorScheme={update_status == 0 ? 'success' : 'info'}
+                  alignSelf="center"
+                  variant="solid">
+                  {update_status == 0 ? 'INCOMPLETE' : 'UPDATED'}
+                </Badge>
+              </Text>
+            </Center>
+          </HStack>
+        </Box>
+      </TouchableOpacity>
+    );
+  };
+  const FooterComponent = () => {
+    return (
+      <Center>
+        <HStack>
+          <Text>Load More </Text>
+          <Spinner accessibilityLabel="Loading posts" size="sm" color="black" />
+        </HStack>
+      </Center>
+    );
   };
   return (
     <SafeAreaView>
@@ -619,75 +716,17 @@ export default function Customer({navigation}) {
                 height: '90%',
               }}
               // initialNumToRender={20}
-              data={customerData}
+              maxToRenderPerBatch={page}
+              data={customerData.slice(0, page)}
+              onEndReachedThreshold={0.9}
+              onEndReached={MoreData}
+              ListFooterComponent={FooterComponent}
               renderItem={({item}) => (
-                <TouchableOpacity
-                  // onPress={() => {
-                  //   getCustomerDetails(item.customer_id);
-                  // }}
-                  // disabled={item.update_status == 0 ? false : true}
-                  disabled={true}>
-                  <Box
-                    borderBottomWidth="1"
-                    _dark={{
-                      borderColor: 'muted.50',
-                    }}
-                    borderColor="muted.800"
-                    pl={['0', '4']}
-                    pr={['0', '5']}
-                    py="2">
-                    <HStack space={[2, 3]} justifyContent="space-between">
-                      <Avatar
-                        size="48px"
-                        source={
-                          item.farm_type == 'L'
-                            ? require('../assets/layer.png')
-                            : require('../assets/pig.png')
-                        }
-                      />
-                      <VStack
-                        w="50%"
-                        // style={{borderColor: 'red', borderWidth: 1}}
-                      >
-                        <Text
-                          _dark={{
-                            color: 'warmGray.50',
-                          }}
-                          color="coolGray.800"
-                          bold>
-                          {item.farm_name}
-                        </Text>
-                        <Text
-                          color="coolGray.600"
-                          _dark={{
-                            color: 'warmGray.200',
-                          }}>
-                          {item.customer}
-                        </Text>
-                      </VStack>
-                      <Spacer />
-                      <Center>
-                        <Text
-                          fontSize="xs"
-                          _dark={{
-                            color: 'warmGray.50',
-                          }}
-                          color="coolGray.800"
-                          alignSelf="flex-start">
-                          {/* <Badge
-                            colorScheme={
-                              item.update_status == 0 ? 'success' : 'info'
-                            }
-                            alignSelf="center"
-                            variant="solid">
-                            {item.update_status == 0 ? 'INCOMPLETE' : 'UPDATED'}
-                          </Badge> */}
-                          {/* {item.update_status} */}
-                        </Text>
-                      </Center>
-                    </HStack>
-                  </Box>
-                </TouchableOpacity>
+                <RenderViewData
+                  update_status={0}
+                  farm_type={item.farm_type}
+                  farm_name={item.farm_name}
+                />
               )}
               keyExtractor={item => item.customer_id}
               refreshControl={
@@ -754,335 +793,50 @@ export default function Customer({navigation}) {
             size="md"
             label="Add Customer"
             onPress={() => {
-              setModalVisible(true);
+              // setModalVisible(true);
               // console.log('test');
               // navigation.navigate('Add Customer');
             }}
           />
         </Box>
       </Center>
-      <Modal
-        isOpen={modalVisible}
-        onClose={() => {
-          setModalVisible(false);
-          setBtnLocation(false);
-        }}
-        avoidKeyboard
-        style={{marginBottom: 'auto', marginTop: 0}}
-        size="lg">
-        <Modal.Content>
-          <Modal.CloseButton />
-          <Modal.Header>Add Customer</Modal.Header>
-          <Modal.Body>
-            Enter Customer Details
-            <FormControl mt="3">
-              <FormControl.Label>
-                Farm Name <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Input
-                value={farmname}
-                onChangeText={text => setFarmname(text)}
-              />
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>
-                Fullname <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Input
-                value={fullname}
-                onChangeText={text => setFullname(text)}
-              />
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>
-                Farmtype <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Picker
-                selectedValue={farmtype}
-                minWidth="200"
-                accessibilityLabel="Choose Service"
-                placeholder="Choose Service"
-                _selectedItem={{
-                  bg: 'teal.600',
-                  endIcon: <CheckIcon size="5" />,
-                }}
-                mt={1}
-                onValueChange={itemValue => setFarmType(itemValue)}>
-                <Picker.Item label="Select Farm Type" value="" />
-                <Picker.Item label="Farrow to finish" value="FF" />
-                <Picker.Item label="Piglet dispersal" value="PD" />
-                <Picker.Item label="Fatteners" value="F" />
-                <Picker.Item label="Layer" value="L" />
-              </Picker>
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>
-                Branch
-                <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Picker
-                selectedValue={branch_id}
-                minWidth="200"
-                accessibilityLabel="Choose Branch"
-                placeholder="Choose Branch"
-                _selectedItem={{
-                  bg: 'teal.600',
-                  endIcon: <CheckIcon size="5" />,
-                }}
-                mt={1}
-                onValueChange={itemValue => setBranchId(itemValue)}>
-                <Picker.Item label="Select Branch" value="" />
-                {branchData.map((item, index) => {
-                  return (
-                    <Picker.Item
-                      label={item.branch + ' (' + item.province + ')'}
-                      value={item.branch_id}
-                    />
-                  );
-                })}
-              </Picker>
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>Contact Number (Optional)</FormControl.Label>
-              <Input
-                value={contact_number}
-                onChangeText={text => setContactNum(text)}
-              />
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>
-                Population <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Input
-                value={population}
-                onChangeText={text => setPopulation(text)}
-              />
-            </FormControl>
-            <FormControl mt="3">
-              <Button
-                disabled={btnLocation}
-                flex="1"
-                onPress={() => {
-                  getLocation();
-                }}>
-                {/* {btnLocation == true && (
-                  <Spinner
-                    accessibilityLabel="Loading posts"
-                    size="sm"
-                    color="white"
-                  />
-                )}
-                <Text style={{color: 'white'}}>
-                  <Icon name="map-marker" style={{fontSize: 15}} /> Pin Location
-                </Text> */}
-                <HStack space={2} alignItems="center">
-                  {/* {btnLocation == true && (
-                    <Spinner
-                      accessibilityLabel="Loading posts"
-                      size="sm"
-                      color="white"
-                    />
-                  )} */}
 
-                  <Heading color="white" fontSize="md">
-                    {btnLocation ? 'Pinned' : 'Pin Location'}
-                  </Heading>
-                  {btnLocation == false && (
-                    <Icon
-                      as={<FontIcon name="map-marker" />}
-                      size="5"
-                      color="white"
-                    />
-                  )}
-                </HStack>
-              </Button>
-            </FormControl>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              flex="1"
-              colorScheme="emerald"
-              onPress={() => {
-                addCustomer();
-              }}>
-              <HStack space={2} alignItems="center">
-                {btnSave == true && (
-                  <Spinner
-                    accessibilityLabel="Loading posts"
-                    size="sm"
-                    color="white"
-                  />
-                )}
-
-                <Heading color="white" fontSize="md">
-                  {btnSave ? 'Loading' : 'Save'}
-                </Heading>
-              </HStack>
-            </Button>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal>
       {/* !END of add customer modal */}
       <Modal
-        isOpen={modalVisibleUpdate}
-        onClose={() => setModalVisibleUpdate(false)}
-        avoidKeyboard
-        style={{marginBottom: 'auto', marginTop: 0}}
-        size="lg">
-        <Modal.Content>
-          <Modal.CloseButton />
-          <Modal.Header>Update Customer</Modal.Header>
-
-          <Modal.Body>
-            {customerDetails == false ? (
-              <Center>
-                <Spinner
-                  accessibilityLabel="Loading posts"
-                  size="sm"
-                  color="#7005a3"
-                />
-              </Center>
-            ) : (
-              <Center>
-                <FormControl mt="3">
-                  <FormControl.Label>
-                    Farm Name <Text style={{color: 'red'}}>*</Text>
-                  </FormControl.Label>
-                  <Input
-                    isReadOnly={true}
-                    value={farmname}
-                    onChangeText={text => setFarmname(text)}
-                  />
-                </FormControl>
-                <FormControl mt="3">
-                  <FormControl.Label>
-                    Fullname <Text style={{color: 'red'}}>*</Text>
-                  </FormControl.Label>
-                  <Input
-                    isReadOnly={true}
-                    value={fullname}
-                    onChangeText={text => setFullname(text)}
-                  />
-                </FormControl>
-                <FormControl mt="3">
-                  <FormControl.Label>
-                    Farmtype <Text style={{color: 'red'}}>*</Text>
-                  </FormControl.Label>
-                  <Picker
-                    selectedValue={farmtype}
-                    minWidth="200"
-                    accessibilityLabel="Choose Service"
-                    placeholder="Choose Service"
-                    _selectedItem={{
-                      bg: 'teal.600',
-                      endIcon: <CheckIcon size="5" />,
-                    }}
-                    mt={1}
-                    onValueChange={itemValue => setFarmType(itemValue)}>
-                    <Picker.Item label="Farrow to finish" value="FF" />
-                    <Picker.Item label="Piglet dispersal" value="PD" />
-                    <Picker.Item label="Fatteners" value="F" />
-                    <Picker.Item label="Layer" value="L" />
-                  </Picker>
-                </FormControl>
-                <FormControl mt="3">
-                  <FormControl.Label>
-                    Branch
-                    <Text style={{color: 'red'}}>*</Text>
-                  </FormControl.Label>
-                  <Picker
-                    selectedValue={branch_id}
-                    minWidth="200"
-                    accessibilityLabel="Choose Branch"
-                    placeholder="Choose Branch"
-                    _selectedItem={{
-                      bg: 'teal.600',
-                      endIcon: <CheckIcon size="5" />,
-                    }}
-                    mt={1}
-                    onValueChange={itemValue => setBranchId(itemValue)}>
-                    {branchData.map((item, index) => {
-                      return (
-                        <Picker.Item
-                          label={item.branch_name}
-                          value={item.branch_id}
-                        />
-                      );
-                    })}
-                  </Picker>
-                </FormControl>
-                <FormControl mt="3">
-                  <FormControl.Label>
-                    Contact Number (Optional)
-                  </FormControl.Label>
-                  <Input
-                    value={contact_number}
-                    onChangeText={text => setContactNum(text)}
-                  />
-                </FormControl>
-                <FormControl mt="3">
-                  <FormControl.Label>
-                    Population <Text style={{color: 'red'}}>*</Text>
-                  </FormControl.Label>
-                  <Input
-                    value={population}
-                    onChangeText={text => setPopulation(text)}
-                  />
-                </FormControl>
-                <FormControl mt="3">
-                  <Button
-                    disabled={btnLocation}
-                    flex="1"
-                    onPress={() => {
-                      getLocation();
-                    }}>
-                    {/* {btnLocation == true && (
-                <Spinner
-                  accessibilityLabel="Loading posts"
-                  size="sm"
-                  color="white"
-                />
-              )}
-              <Text style={{color: 'white'}}>
-                <Icon name="map-marker" style={{fontSize: 15}} /> Pin Location
-              </Text> */}
-                    <HStack space={2} alignItems="center">
-                      {/* {btnLocation == true && (
-                  <Spinner
-                    accessibilityLabel="Loading posts"
-                    size="sm"
-                    color="white"
-                  />
-                )} */}
-
-                      <Heading color="white" fontSize="md">
-                        {btnLocation ? 'Pinned' : 'Update Location'}
-                      </Heading>
-                      {btnLocation == false && (
-                        <Icon
-                          as={<FontIcon name="map-marker" />}
-                          size="5"
-                          color="white"
-                        />
-                      )}
-                    </HStack>
-                  </Button>
-                </FormControl>
-              </Center>
-            )}
-          </Modal.Body>
-
-          <Modal.Footer>
-            <Button
-              flex="1"
-              colorScheme="emerald"
-              onPress={() => {
-                updateCustomer();
-              }}>
-              Save Changes
-            </Button>
-          </Modal.Footer>
-        </Modal.Content>
+        style={{
+          justifyContent: 'center',
+        }}
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+          setModalVisible(!modalVisible);
+        }}>
+        <Box style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Center bg="#2a2a2ab8" width="50%" height="20%" borderRadius={10}>
+            <ActivityIndicator size="large" color="white" />
+            <Text color="white">Loading...</Text>
+          </Center>
+        </Box>
+      </Modal>
+      <Modal
+        style={{
+          justifyContent: 'center',
+        }}
+        animationType="fade"
+        transparent={true}
+        visible={modalVisibleUpdate}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+          setModalVisibleUpdate(!modalVisibleUpdate);
+        }}>
+        <Box style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Center bg="#2a2a2ab8" width="50%" height="20%" borderRadius={10}>
+            <ActivityIndicator size="large" color="white" />
+            <Text color="white">Loading...</Text>
+          </Center>
+        </Box>
       </Modal>
     </SafeAreaView>
   );
