@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class BackgroundService extends Service {
-    private static final int SERVICE_NOTIFICATION_ID = 12345;
+    private static final int SERVICE_NOTIFICATION_ID = 20220302;
     private static final String CHANNEL_ID = "BACKGROUND_ID";
     private Handler handler = new Handler();
     private Runnable runnableCode = new Runnable() {
@@ -39,6 +39,9 @@ public class BackgroundService extends Service {
             context.startService(myIntent);
             HeadlessJsTaskService.acquireWakeLockNow(context);
             handler.postDelayed(this, 600000); // 10min interval for headless task in react
+
+
+            
         }
     };
     private void createNotificationChannel() {
