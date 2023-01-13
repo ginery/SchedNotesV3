@@ -50,7 +50,6 @@ const Home = () => {
       //   },
       //   created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
       // );
-
       //console.log('refreshed_home');
       // BackgroundTimer.runBackgroundTimer(() => {
       //   //code that will be called every 1hr
@@ -104,8 +103,30 @@ const Home = () => {
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         //   Geolocation.getCurrentPosition(info => console.log(info));
-        Background.startService();
+        // Background.startService();
         console.log('Location permission granted');
+        setTimeout(() => {
+          PushNotification.getDeliveredNotifications(e => {
+            console.log(e);
+
+            if (e != '') {
+              e.map((item, index) => {
+                if (item.identifier == 20220302 && item.title == 'SchedNotes') {
+                  console.log('horray');
+                  Background.startService();
+                } else {
+                  Background.stopService();
+                  AsyncStorage.clear();
+                  navigation.navigate('Login');
+                }
+              });
+            } else {
+              Background.stopService();
+              AsyncStorage.clear();
+              navigation.navigate('Login');
+            }
+          });
+        }, 10000);
       } else {
         Alert.alert(
           'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features.',
