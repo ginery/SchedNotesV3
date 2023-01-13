@@ -49,7 +49,7 @@ public class BackgroundModule extends ReactContextBaseJavaModule {
 
         AlarmManager alarmMgr = (AlarmManager)this.reactContext.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this.reactContext, BackgroundAlarmManager.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.reactContext, 0,  intent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.reactContext, 0,  intent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),10*60*1000, pendingIntent);
         Toast.makeText(this.reactContext.getApplicationContext(), "SchedNotes still working hard..", Toast.LENGTH_SHORT).show();
     }

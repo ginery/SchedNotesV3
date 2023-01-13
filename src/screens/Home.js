@@ -126,7 +126,7 @@ const Home = () => {
               navigation.navigate('Login');
             }
           });
-        }, 10000);
+        }, 2000);
       } else {
         Alert.alert(
           'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features.',
