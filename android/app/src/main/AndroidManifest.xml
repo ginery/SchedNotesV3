@@ -20,8 +20,8 @@
       </intent-filter>
     </activity>
     <service android:name="com.schednotesv3.backgroundtask.BackgroundService" android:enabled="true" android:exported="false"></service>
-    <service android:name="com.schednotesv3.backgroundtask.BackgroundEventService"></service>
-    <receiver android:name="com.schednotesv3.backgroundtask.BootUpReceiver" android:enabled="true" android:exported="true" android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+    <service android:name="com.schednotesv3.backgroundtask.BackgroundEventService" android:exported="false"></service>
+    <receiver android:name="com.schednotesv3.backgroundtask.BootUpReceiver" android:enabled="true" android:exported="false" android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
       <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED" />
         <category android:name="android.intent.category.DEFAULT" />
@@ -31,16 +31,16 @@
     <meta-data android:name="com.dieam.reactnativepushnotification.notification_foreground" android:value="false" />
     <!-- Change the resource name to your App's accent color - or any other color you want -->
     <meta-data android:name="com.dieam.reactnativepushnotification.notification_color" android:resource="@color/white" /> <!-- or @android:color/{name} to use a standard color -->
-    <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
-    <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
-    <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver" android:exported="true">
+    <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" android:exported="false" />
+    <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" android:exported="false" />
+    <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver" android:exported="false">
       <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED" />
         <action android:name="android.intent.action.QUICKBOOT_POWERON" />
         <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
       </intent-filter>
     </receiver>
-
+    <receiver android:name="com.schednotesv3.backgroundtask.BackgroundAlarmManager" android:exported="true" />
     <service android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService" android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />

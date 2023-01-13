@@ -117,9 +117,9 @@ export default function Sidebar({...props}) {
               Check update
             </Text>
           </TouchableOpacity> */}
-          <Text style={{color: '#7005a3'}}>Schednotes@V3 Version 2.0.1</Text>
+          <Text style={{color: '#7005a3'}}>Schednotes@V3 Version 2.0.2</Text>
           <Text style={{color: '#7005a3', fontWeight: 'bold'}}>
-            FOR ANDROID 10 & 11 ONLY
+            FOR ANDROID 12 ONLY
           </Text>
         </Center>
       </Box>
