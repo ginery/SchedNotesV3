@@ -16,6 +16,6 @@ public class BackgroundAlarmManager extends BroadcastReceiver {
         }
         //log("Starting the service in < 26 Mode from a BroadcastReceiver")
         context.startService(new Intent(context, BackgroundService.class));
-        Toast.makeText(context.getApplicationContext(), "Alarm sets", Toast.LENGTH_SHORT).show();
+
     }
 }
