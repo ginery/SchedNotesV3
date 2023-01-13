@@ -18,7 +18,7 @@ import {
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import {NativeModules} from 'react-native';
+import {NativeModules, PermissionsAndroid} from 'react-native';
 import {ItemClick} from 'native-base/lib/typescript/components/composites/Typeahead/useTypeahead/types';
 const {Background} = NativeModules;
 export default function LoginScreen() {
@@ -31,6 +31,7 @@ export default function LoginScreen() {
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       //console.log('refreshed_home');
+
       setButtonStatus(false);
 
       retrieveUser();
@@ -72,6 +73,47 @@ export default function LoginScreen() {
       console.log(error);
     }
   };
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Location Permission',
+          message: 'MyMapApp needs access to your location',
+        },
+      );
+      const granted_bg = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+      );
+
+      if (granted_bg === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Location permission granted background');
+      } else {
+        console.log('Location permission not granted background');
+        Alert.alert(
+          'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features',
+        );
+        AsyncStorage.clear();
+        navigation.navigate('Login');
+      }
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        //   Geolocation.getCurrentPosition(info => console.log(info));
+        Background.startService();
+        console.log('Location permission granted');
+      } else {
+        Alert.alert(
+          'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features.',
+        );
+        AsyncStorage.clear();
+        navigation.navigate('Login');
+
+        console.log('Location permission denied');
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const login = () => {
     if (username == '' && password == '') {
       toast.show({
@@ -102,6 +144,7 @@ export default function LoginScreen() {
           console.log(responseJson);
           var data = responseJson.array_data[0];
           if (data.response == 1) {
+            requestLocationPermission();
             toast.show({
               placement: 'top',
               render: () => {
