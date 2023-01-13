@@ -235,7 +235,6 @@ export default function Customer({navigation}) {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
         if (responseJson.array_data != '') {
           var data = responseJson.array_data.map(function (item, index) {
             insertDataBranch(
@@ -249,6 +248,7 @@ export default function Customer({navigation}) {
               item.status,
             );
           });
+          // console.log(data);
 
           selectTableBranch();
           // setBranchData(data);
@@ -405,7 +405,6 @@ export default function Customer({navigation}) {
                 setUpdateBotton(false);
               }
             } else {
-              getBranch();
             }
           })
           .catch(error => {
@@ -927,7 +926,6 @@ export default function Customer({navigation}) {
         </Modal.Content>
       </Modal>
       {/* !END of add customer modal */}
-      {/*
       <Modal
         isOpen={modalVisibleUpdate}
         onClose={() => setModalVisibleUpdate(false)}
@@ -1041,7 +1039,7 @@ export default function Customer({navigation}) {
                     onPress={() => {
                       getLocation();
                     }}>
-                    {btnLocation == true && (
+                    {/* {btnLocation == true && (
                 <Spinner
                   accessibilityLabel="Loading posts"
                   size="sm"
@@ -1050,15 +1048,15 @@ export default function Customer({navigation}) {
               )}
               <Text style={{color: 'white'}}>
                 <Icon name="map-marker" style={{fontSize: 15}} /> Pin Location
-              </Text> 
+              </Text> */}
                     <HStack space={2} alignItems="center">
-                      {btnLocation == true && (
+                      {/* {btnLocation == true && (
                   <Spinner
                     accessibilityLabel="Loading posts"
                     size="sm"
                     color="white"
                   />
-                )} 
+                )} */}
 
                       <Heading color="white" fontSize="md">
                         {btnLocation ? 'Pinned' : 'Update Location'}
@@ -1088,7 +1086,7 @@ export default function Customer({navigation}) {
             </Button>
           </Modal.Footer>
         </Modal.Content>
-      </Modal> */}
+      </Modal>
     </SafeAreaView>
   );
 }

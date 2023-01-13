@@ -119,7 +119,7 @@ export default function Sidebar({...props}) {
           </TouchableOpacity> */}
           <Text style={{color: '#7005a3'}}>Schednotes@V3 Version 2.0.2</Text>
           <Text style={{color: '#7005a3', fontWeight: 'bold'}}>
-            FOR ANDROID 12 ONLY
+            FOR ANDROID 10 & 11 ONLY
           </Text>
         </Center>
       </Box>
