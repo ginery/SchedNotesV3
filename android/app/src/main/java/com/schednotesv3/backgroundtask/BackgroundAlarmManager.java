@@ -13,9 +13,11 @@ public class BackgroundAlarmManager extends BroadcastReceiver {
             //log("Starting the service in >=26 Mode from a BroadcastReceiver")
             context.startForegroundService(new Intent(context, BackgroundService.class));
             return;
+        }else{
+            //log("Starting the service in < 26 Mode from a BroadcastReceiver")
+            context.startService(new Intent(context, BackgroundService.class));
         }
-        //log("Starting the service in < 26 Mode from a BroadcastReceiver")
-        context.startService(new Intent(context, BackgroundService.class));
+
 
     }
 }
