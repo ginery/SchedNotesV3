@@ -238,26 +238,7 @@ const MyHeadlessTask = async () => {
     },
     {enableHighAccuracy: true, timeout: 3000, maximumAge: 3000},
   );
-  PushNotification.getDeliveredNotifications(e => {
-    console.log(e);
 
-    if (e != '') {
-      e.map((item, index) => {
-        if (item.identifier == 20220302 && item.title == 'SchedNotes') {
-          console.log('horray');
-          Background.startService();
-        } else {
-          Background.stopService();
-          AsyncStorage.clear();
-          navigation.navigate('Login');
-        }
-      });
-    } else {
-      Background.stopService();
-      AsyncStorage.clear();
-      navigation.navigate('Login');
-    }
-  });
   // console.log(watchID);
   Geolocation.getCurrentPosition(info => {
     // console.log(info.coords.latitude);

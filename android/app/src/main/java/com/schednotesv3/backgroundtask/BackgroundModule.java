@@ -38,15 +38,6 @@ public class BackgroundModule extends ReactContextBaseJavaModule {
 
     }
     public void startAlert(){
-//        Intent intent = new Intent(this.reactContext, BackgroundAlarmManager.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-//                this.reactContext, 234324243, intent, 0);
-//        AlarmManager alarmManager = (AlarmManager) this.reactContext.getSystemService(Context.ALARM_SERVICE);
-////        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (2*60*1000), pendingIntent);
-////        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 2*60*1000,                pendingIntent);
-//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1*60*1000, pendingIntent);
-
-
         AlarmManager alarmMgr = (AlarmManager)this.reactContext.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this.reactContext, BackgroundAlarmManager.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this.reactContext, 0,  intent, PendingIntent.FLAG_CANCEL_CURRENT);
