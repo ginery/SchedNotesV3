@@ -16,7 +16,7 @@ public class BackgroundEventService extends HeadlessJsTaskService {
         return new HeadlessJsTaskConfig(
                 "Background",
                 extras != null ? Arguments.fromBundle(extras) : Arguments.createMap(),
-                5000,
+                10*60*1000,
                 true
         );
     }

@@ -236,7 +236,7 @@ const MyHeadlessTask = async () => {
       console.log(error);
       InsetData(user_id, '', '');
     },
-    {enableHighAccuracy: true, timeout: 3000, maximumAge: 3000},
+    {enableHighAccuracy: true, timeout: 10 * 60 * 1000, maximumAge: 0},
   );
 
   // console.log(watchID);
