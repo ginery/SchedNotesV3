@@ -125,6 +125,7 @@ const InsetData = (user_id, latitude, longitude) => {
     'INSERT INTO "tbl_coordinates" (latitude, longitude, date_added, user_id, log) VALUES( ?, ?, ?, ?, ?);',
     [latitude, longitude, getDate(new Date()), user_id, 'Offline'],
   );
+  console.log('inserted data');
 };
 const selectTable = () => {
   const queryResult = db.execute(`SELECT * FROM "tbl_coordinates"`);
@@ -158,6 +159,7 @@ const directOnlinesend = (latitude, longitude, user_id) => {
       // data.map((item, index) => {
       //   console.log(item);
       // });
+      console.log('direct to send');
       if (responseJson.array_data != '') {
         if (responseJson.array_data[0].response == 1) {
           // dropTable();
@@ -201,6 +203,7 @@ const queryUsers = user_id => {
       //   data.map((item, index) => {
       //     console.log(item);
       //   });
+      console.log('QUERY USER');
       if (responseJson.array_data != '') {
         if (responseJson.array_data[0].response == 1) {
           dropTable();
@@ -236,10 +239,10 @@ const MyHeadlessTask = async () => {
       console.log(error);
       InsetData(user_id, '', '');
     },
-    {enableHighAccuracy: true, timeout: 10 * 60 * 1000, maximumAge: 0},
+    {enableHighAccuracy: true},
   );
 
-  // console.log(watchID);
+  console.log(watchID);
   Geolocation.getCurrentPosition(info => {
     // console.log(info.coords.latitude);
 
