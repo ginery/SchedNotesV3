@@ -10,7 +10,6 @@ import {
   Spacer,
   Center,
   NativeBaseProvider,
-  Modal,
   FormControl,
   Input,
   Button,
@@ -19,6 +18,9 @@ import {
   Icon,
   Badge,
   Skeleton,
+  Stack,
+  Pressable,
+  ScrollView,
 } from 'native-base';
 import {
   RefreshControl,
@@ -28,6 +30,7 @@ import {
   FlatList,
   SafeAreaView,
   View,
+  Modal,
 } from 'react-native';
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import {color} from 'react-native-reanimated';
@@ -99,7 +102,7 @@ export default function Customer({navigation}) {
   const createTableBranch = async () => {
     try {
       db.execute(
-        'CREATE TABLE IF NOT EXISTS "tbl_branch" (branch_id INTEGER, island_group TEXT NOT NULL, region TEXT NOT NULL, province DATETIME, company_id INTEGER, branch TEXT NOT NULL, remarks TEXT NOT NULL, status TEXT NOT NULL);',
+        'CREATE TABLE IF NOT EXISTS "tbl_branch" (branch_id INTEGER, island_group TEXT NOT NULL, region TEXT NOT NULL, province DATETIME, company_id INTEGER, branch TEXT NOT NULL, remarks TEXT NOT NULL, status TEXT NOT NULL, coordinates TEXT NOT NULL);',
       );
     } catch (e) {
       console.warn('Error opening db:', e);
@@ -123,10 +126,11 @@ export default function Customer({navigation}) {
     company_id,
     remarks,
     status,
+    coordinates,
   ) => {
     try {
       db.execute(
-        'INSERT INTO "tbl_branch" (branch_id ,island_group, region, province, company_id, branch, remarks, status) VALUES(?, ?, ?, ?, ?, ?, ?, ?);',
+        'INSERT INTO "tbl_branch" (branch_id ,island_group, region, province, company_id, branch, remarks, status, coordinates) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);',
         [
           branch_id,
           island_group,
@@ -136,6 +140,7 @@ export default function Customer({navigation}) {
           branch,
           remarks,
           status,
+          coordinates,
         ],
       );
     } catch (e) {
@@ -247,6 +252,7 @@ export default function Customer({navigation}) {
               item.company_id,
               item.remarks,
               item.status,
+              item.coordinates,
             );
           });
 
@@ -391,11 +397,12 @@ export default function Customer({navigation}) {
             //   data.map((item, index) => {
             //     console.log(item);
             //   });
-            dropTable();
-            createData();
-            createTableBranch();
+
             if (responseJson.array_data != '') {
               if (responseJson.array_data[0].response == 1) {
+                dropTable();
+                createData();
+                createTableBranch();
                 getBranch();
                 getCustomer();
                 setUpdateBotton(false);
@@ -421,7 +428,6 @@ export default function Customer({navigation}) {
     setBtnSave(true);
     if (
       user_id == '' ||
-      farmname == '' ||
       fullname == '' ||
       farmtype == '' ||
       branch_id == '' ||
@@ -764,168 +770,213 @@ export default function Customer({navigation}) {
         </Box>
       </Center>
       <Modal
-        isOpen={modalVisible}
-        onClose={() => {
-          setModalVisible(false);
-          setBtnLocation(false);
+        style={{
+          justifyContent: 'center',
         }}
-        avoidKeyboard
-        style={{marginBottom: 'auto', marginTop: 0}}
-        size="lg">
-        <Modal.Content>
-          <Modal.CloseButton />
-          <Modal.Header>Add Customer</Modal.Header>
-          <Modal.Body>
-            Enter Customer Details
-            <FormControl mt="3">
-              <FormControl.Label>
-                Farm Name <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Input
-                value={farmname}
-                onChangeText={text => setFarmname(text)}
-              />
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>
-                Fullname <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Input
-                value={fullname}
-                onChangeText={text => setFullname(text)}
-              />
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>
-                Farmtype <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Picker
-                selectedValue={farmtype}
-                minWidth="200"
-                accessibilityLabel="Choose Service"
-                placeholder="Choose Service"
-                _selectedItem={{
-                  bg: 'teal.600',
-                  endIcon: <CheckIcon size="5" />,
-                }}
-                mt={1}
-                onValueChange={itemValue => setFarmType(itemValue)}>
-                <Picker.Item label="Select Farm Type" value="" />
-                <Picker.Item label="Farrow to finish" value="FF" />
-                <Picker.Item label="Piglet dispersal" value="PD" />
-                <Picker.Item label="Fatteners" value="F" />
-                <Picker.Item label="Layer" value="L" />
-              </Picker>
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>
-                Branch
-                <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Picker
-                selectedValue={branch_id}
-                minWidth="200"
-                accessibilityLabel="Choose Branch"
-                placeholder="Choose Branch"
-                _selectedItem={{
-                  bg: 'teal.600',
-                  endIcon: <CheckIcon size="5" />,
-                }}
-                mt={1}
-                onValueChange={itemValue => setBranchId(itemValue)}>
-                <Picker.Item label="Select Branch" value="" />
-                {branchData.map((item, index) => {
-                  return (
-                    <Picker.Item
-                      label={item.branch + ' (' + item.province + ')'}
-                      value={item.branch_id}
-                    />
-                  );
-                })}
-              </Picker>
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>Contact Number (Optional)</FormControl.Label>
-              <Input
-                value={contact_number}
-                onChangeText={text => setContactNum(text)}
-              />
-            </FormControl>
-            <FormControl mt="3">
-              <FormControl.Label>
-                Population <Text style={{color: 'red'}}>*</Text>
-              </FormControl.Label>
-              <Input
-                value={population}
-                onChangeText={text => setPopulation(text)}
-              />
-            </FormControl>
-            <FormControl mt="3">
-              <Button
-                disabled={btnLocation}
-                flex="1"
-                onPress={() => {
-                  setPinLoading(true);
-                  getLocation();
-                }}>
-                {/* {btnLocation == true && (
-                  <Spinner
-                    accessibilityLabel="Loading posts"
-                    size="sm"
-                    color="white"
-                  />
-                )}
-                <Text style={{color: 'white'}}>
-                  <Icon name="map-marker" style={{fontSize: 15}} /> Pin Location
-                </Text> */}
-                <HStack space={2} alignItems="center">
-                  {pinLoading == true && (
-                    <Spinner
-                      accessibilityLabel="Loading posts"
-                      size="sm"
-                      color="white"
-                    />
-                  )}
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}>
+        <Box style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Center bg="#2a2a2ab8" width="100%" height="100%">
+            <Center width="100%" height="80%" borderRadius={5}>
+              <Box alignItems="center" width="100%">
+                <Box alignItems="center" width="100%" height="80%">
+                  <Box
+                    width="80%"
+                    rounded="lg"
+                    overflow="hidden"
+                    borderColor="coolGray.200"
+                    borderWidth="1"
+                    _dark={{
+                      borderColor: 'coolGray.600',
+                      backgroundColor: 'gray.700',
+                    }}
+                    _web={{
+                      shadow: 2,
+                      borderWidth: 0,
+                    }}
+                    _light={{
+                      backgroundColor: 'gray.50',
+                    }}>
+                    <Box>
+                      <Pressable
+                        onPress={() => {
+                          console.log('taps');
+                          setModalVisible(false);
+                          setBtnLocation(false);
+                        }}
+                        bgColor="#257f3a"
+                        bg="#28a745"
+                        _dark={{
+                          bg: '28a745',
+                        }}
+                        position="absolute"
+                        right="0"
+                        top="0"
+                        px="3"
+                        py="1.5">
+                        <Center
+                          _text={{
+                            color: 'warmGray.50',
+                            fontWeight: '700',
+                            fontSize: 'xs',
+                          }}>
+                          X
+                        </Center>
+                      </Pressable>
+                    </Box>
+                    <Heading size="lg" pl={10} width="80%">
+                      Add Customer
+                    </Heading>
+                    <ScrollView w={['100%', '300']}>
+                      <Stack p="4" space={0} width="95%">
+                        {/* <FormControl mt="3">
+                          <FormControl.Label>
+                            Farm Name <Text style={{color: 'red'}}>*</Text>
+                          </FormControl.Label>
+                          <Input
+                            value={farmname}
+                            onChangeText={text => setFarmname(text)}
+                          />
+                        </FormControl> */}
+                        <FormControl mt="3">
+                          <FormControl.Label>
+                            Fullname <Text style={{color: 'red'}}>*</Text>
+                          </FormControl.Label>
+                          <Input
+                            value={fullname}
+                            onChangeText={text => setFullname(text)}
+                          />
+                        </FormControl>
+                        <FormControl mt="3">
+                          <FormControl.Label>
+                            Farmtype <Text style={{color: 'red'}}>*</Text>
+                          </FormControl.Label>
+                          <Picker
+                            selectedValue={farmtype}
+                            minWidth="200"
+                            accessibilityLabel="Choose Service"
+                            placeholder="Choose Service"
+                            _selectedItem={{
+                              bg: 'teal.600',
+                              endIcon: <CheckIcon size="5" />,
+                            }}
+                            mt={1}
+                            onValueChange={itemValue => setFarmType(itemValue)}>
+                            <Picker.Item label="Select Farm Type" value="" />
+                            <Picker.Item label="Farrow to finish" value="FF" />
+                            <Picker.Item label="Piglet dispersal" value="PD" />
+                            <Picker.Item label="Fatteners" value="F" />
+                            <Picker.Item label="Layer" value="L" />
+                          </Picker>
+                        </FormControl>
+                        <FormControl mt="3">
+                          <FormControl.Label>
+                            Branch
+                            <Text style={{color: 'red'}}>*</Text>
+                          </FormControl.Label>
+                          <Picker
+                            selectedValue={branch_id}
+                            minWidth="200"
+                            accessibilityLabel="Choose Branch"
+                            placeholder="Choose Branch"
+                            _selectedItem={{
+                              bg: 'teal.600',
+                              endIcon: <CheckIcon size="5" />,
+                            }}
+                            mt={1}
+                            onValueChange={itemValue => setBranchId(itemValue)}>
+                            <Picker.Item label="Select Branch" value="" />
+                            {branchData.map((item, index) => {
+                              return (
+                                <Picker.Item
+                                  label={
+                                    item.branch + ' (' + item.province + ')'
+                                  }
+                                  value={item.branch_id}
+                                />
+                              );
+                            })}
+                          </Picker>
+                        </FormControl>
+                        <FormControl mt="3">
+                          <FormControl.Label>
+                            Contact Number (Optional)
+                          </FormControl.Label>
+                          <Input
+                            value={contact_number}
+                            onChangeText={text => setContactNum(text)}
+                          />
+                        </FormControl>
+                        <FormControl mt="3">
+                          <FormControl.Label>
+                            Population <Text style={{color: 'red'}}>*</Text>
+                          </FormControl.Label>
+                          <Input
+                            value={population}
+                            onChangeText={text => setPopulation(text)}
+                          />
+                        </FormControl>
+                        <FormControl mt="3">
+                          <Button
+                            disabled={btnLocation}
+                            flex="1"
+                            onPress={() => {
+                              setPinLoading(true);
+                              getLocation();
+                            }}>
+                            <HStack space={2} alignItems="center">
+                              {pinLoading == true && (
+                                <Spinner
+                                  accessibilityLabel="Loading posts"
+                                  size="sm"
+                                  color="white"
+                                />
+                              )}
 
-                  <Heading color="white" fontSize="md">
-                    {btnLocation ? 'Pinned' : 'Pin Location'}
-                  </Heading>
-                  {btnLocation == false && (
-                    <Icon
-                      as={<FontIcon name="map-marker" />}
-                      size="5"
-                      color="white"
-                    />
-                  )}
-                </HStack>
-              </Button>
-            </FormControl>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              flex="1"
-              colorScheme="emerald"
-              onPress={() => {
-                addCustomer();
-                setBtnSave(true);
-              }}>
-              <HStack space={2} alignItems="center">
-                {btnSave == true && (
-                  <Spinner
-                    accessibilityLabel="Loading posts"
-                    size="sm"
-                    color="white"
-                  />
-                )}
+                              <Heading color="white" fontSize="md">
+                                {btnLocation ? 'Pinned' : 'Pin Location'}
+                              </Heading>
+                              {btnLocation == false && (
+                                <Icon
+                                  as={<FontIcon name="map-marker" />}
+                                  size="5"
+                                  color="white"
+                                />
+                              )}
+                            </HStack>
+                          </Button>
+                        </FormControl>
+                      </Stack>
+                    </ScrollView>
+                    <Button
+                      bgColor="#257f3a"
+                      bg="#28a745"
+                      onPress={() => {
+                        addCustomer();
+                      }}>
+                      <HStack space={2} alignItems="center">
+                        {btnSave == true && (
+                          <Spinner
+                            accessibilityLabel="Loading posts"
+                            size="sm"
+                            color="white"
+                          />
+                        )}
 
-                <Heading color="white" fontSize="md">
-                  {btnSave ? 'Loading' : 'Save'}
-                </Heading>
-              </HStack>
-            </Button>
-          </Modal.Footer>
-        </Modal.Content>
+                        <Heading color="white" fontSize="md">
+                          {btnSave ? 'Loading' : 'Save'}
+                        </Heading>
+                      </HStack>
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            </Center>
+          </Center>
+        </Box>
       </Modal>
+
       {/* !END of add customer modal */}
       {/*
       <Modal
