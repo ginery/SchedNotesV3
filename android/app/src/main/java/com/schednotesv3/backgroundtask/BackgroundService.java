@@ -40,8 +40,6 @@ public class BackgroundService extends Service {
             HeadlessJsTaskService.acquireWakeLockNow(context);
             handler.postDelayed(this, 600000); // 10min interval for headless task in react
 
-
-            
         }
     };
     private void createNotificationChannel() {

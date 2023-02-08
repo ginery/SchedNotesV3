@@ -21,13 +21,13 @@ import {
   Stack,
   Pressable,
   ScrollView,
+  FlatList,
 } from 'native-base';
 import {
   RefreshControl,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  FlatList,
   SafeAreaView,
   View,
   Modal,
@@ -542,6 +542,7 @@ export default function Customer({navigation}) {
         Alert.alert(error.toString());
       });
   };
+
   return (
     <SafeAreaView>
       <Box safeAreaTop backgroundColor="#7005a3" />
@@ -577,7 +578,7 @@ export default function Customer({navigation}) {
                 // borderColor: 'black',
                 // borderWidth: 1,
 
-                width: '60%',
+                width: '30%',
               }}
               rounded="md">
               <Text
@@ -593,180 +594,103 @@ export default function Customer({navigation}) {
             </Center>
 
             <Center
-              w="40%"
+              w="70%"
               style={{
                 // borderColor: 'black',
                 // borderWidth: 1,
                 alignItems: 'flex-end',
               }}>
-              <Button
-                onPress={() => {
-                  updateData();
-                  // getCustomer();
-                  // getBranch();
-                  // setUpdateBotton(false);
-                }}
-                disabled={updateBotton}>
-                <HStack>
-                  {updateBotton == true && (
-                    <ActivityIndicator size="small" color="white" />
-                  )}
+              <HStack space={2}>
+                <Button
+                  colorScheme="emerald"
+                  onPress={() => {
+                    setModalVisible(true);
+                  }}>
+                  <HStack>
+                    <Text style={{color: 'white'}}>Add Customer</Text>
+                  </HStack>
+                </Button>
+                <Button
+                  onPress={() => {
+                    updateData();
+                    // getCustomer();
+                    // getBranch();
+                    // setUpdateBotton(false);
+                  }}
+                  disabled={updateBotton}>
+                  <HStack>
+                    {updateBotton == true && (
+                      <ActivityIndicator size="small" color="white" />
+                    )}
 
-                  <Text style={{color: 'white'}}>
-                    {updateBotton == true ? ' Loading..' : ' Update'}
-                  </Text>
-                </HStack>
-              </Button>
+                    <Text style={{color: 'white'}}>
+                      {updateBotton == true ? ' Loading..' : ' Update'}
+                    </Text>
+                  </HStack>
+                </Button>
+              </HStack>
             </Center>
           </HStack>
-          {loadData == true ? (
+          <Box mt={2}>
             <FlatList
               style={{
-                //   borderColor: 'black',
-                //  borderWidth: 1,
-                height: '90%',
+                // borderColor: 'black',
+                // borderWidth: 1,
+                height: '95%',
               }}
-              // initialNumToRender={20}
               data={customerData}
               renderItem={({item}) => (
-                <TouchableOpacity
-                  // onPress={() => {
-                  //   getCustomerDetails(item.customer_id);
-                  // }}
-                  // disabled={item.update_status == 0 ? false : true}
-                  disabled={true}>
-                  <Box
-                    borderBottomWidth="1"
-                    _dark={{
-                      borderColor: 'muted.50',
-                    }}
-                    borderColor="muted.800"
-                    pl={['0', '4']}
-                    pr={['0', '5']}
-                    py="2">
-                    <HStack space={[2, 3]} justifyContent="space-between">
-                      <Avatar
-                        size="48px"
-                        source={
-                          item.farm_type == 'L'
-                            ? require('../assets/layer.png')
-                            : require('../assets/pig.png')
-                        }
-                      />
-                      <VStack
-                        w="50%"
-                        // style={{borderColor: 'red', borderWidth: 1}}
-                      >
-                        <Text
-                          _dark={{
-                            color: 'warmGray.50',
-                          }}
-                          color="coolGray.800"
-                          bold>
-                          {item.farm_name}
-                        </Text>
-                        <Text
-                          color="coolGray.600"
-                          _dark={{
-                            color: 'warmGray.200',
-                          }}>
-                          {item.customer}
-                        </Text>
-                      </VStack>
-                      <Spacer />
-                      <Center>
-                        <Text
-                          fontSize="xs"
-                          _dark={{
-                            color: 'warmGray.50',
-                          }}
-                          color="coolGray.800"
-                          alignSelf="flex-start">
-                          {/* <Badge
-                            colorScheme={
-                              item.update_status == 0 ? 'success' : 'info'
-                            }
-                            alignSelf="center"
-                            variant="solid">
-                            {item.update_status == 0 ? 'INCOMPLETE' : 'UPDATED'}
-                          </Badge> */}
-                          {/* {item.update_status} */}
-                        </Text>
-                      </Center>
-                    </HStack>
-                  </Box>
-                </TouchableOpacity>
+                <Box
+                  borderWidth={1}
+                  borderRadius={5}
+                  mb={1}
+                  _dark={{
+                    borderColor: '#7005a3',
+                  }}
+                  padding={2}
+                  borderColor="#7005a3">
+                  <HStack space={[2, 3]} justifyContent="space-between">
+                    <Avatar
+                      size="48px"
+                      source={
+                        item.farm_type == 'L'
+                          ? require('../assets/layer.png')
+                          : require('../assets/pig.png')
+                      }
+                    />
+                    <VStack>
+                      <Text
+                        _dark={{
+                          color: 'warmGray.50',
+                        }}
+                        color="coolGray.800"
+                        bold>
+                        {item.customer}
+                      </Text>
+                      <Text
+                        color="coolGray.600"
+                        _dark={{
+                          color: 'warmGray.200',
+                        }}>
+                        {/* <Badge colorScheme="info">INFO</Badge> */}
+                      </Text>
+                    </VStack>
+                    <Spacer />
+                    <Text
+                      fontSize="xs"
+                      _dark={{
+                        color: 'warmGray.50',
+                      }}
+                      color="coolGray.800"
+                      alignSelf="flex-start">
+                      {/* <Badge colorScheme="success">SUCCESS</Badge> */}
+                    </Text>
+                  </HStack>
+                </Box>
               )}
-              keyExtractor={item => item.customer_id}
-              refreshControl={
-                <RefreshControl
-                  title="Pull to refresh"
-                  tintColor="#fff"
-                  titleColor="#fff"
-                  colors={['#7005a3']}
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                />
-              }
+              keyExtractor={item => item.id}
             />
-          ) : (
-            <Center w="100%">
-              <VStack
-                w="90%"
-                maxW="400"
-                borderWidth="1"
-                space={8}
-                overflow="hidden"
-                rounded="md"
-                _dark={{
-                  borderColor: 'coolGray.500',
-                }}
-                _light={{
-                  borderColor: 'coolGray.200',
-                }}>
-                {/* <Skeleton h="40" /> */}
-
-                <HStack>
-                  <Skeleton size="20" m="2" rounded="full" />
-                  <Skeleton.Text pt={6} w="30%" lines={2} />
-                  <Skeleton.Text pt={6} w="30%" pl={5} lines={1} />
-                </HStack>
-                <HStack>
-                  <Skeleton size="20" m="2" rounded="full" />
-                  <Skeleton.Text pt={6} w="30%" lines={2} />
-                  <Skeleton.Text pt={6} w="30%" pl={5} lines={1} />
-                </HStack>
-                <HStack>
-                  <Skeleton size="20" m="2" rounded="full" />
-                  <Skeleton.Text pt={6} w="30%" lines={2} />
-                  <Skeleton.Text pt={6} w="30%" pl={5} lines={1} />
-                </HStack>
-                <HStack>
-                  <Skeleton size="20" m="2" rounded="full" />
-                  <Skeleton.Text pt={6} w="30%" lines={2} />
-                  <Skeleton.Text pt={6} w="30%" pl={5} lines={1} />
-                </HStack>
-                <HStack>
-                  <Skeleton size="20" m="2" rounded="full" />
-                  <Skeleton.Text pt={6} w="30%" lines={2} />
-                  <Skeleton.Text pt={6} w="30%" pl={5} lines={1} />
-                </HStack>
-
-                {/* <Skeleton px="4" my="4" rounded="md" startColor="primary.100" /> */}
-              </VStack>
-            </Center>
-          )}
-          <Fab
-            renderInPortal={true}
-            shadow={2}
-            size="md"
-            label="Add Customer"
-            onPress={() => {
-              setModalVisible(true);
-              // console.log('test');
-              // navigation.navigate('Add Customer');
-            }}
-          />
+          </Box>
         </Box>
       </Center>
       <Modal
