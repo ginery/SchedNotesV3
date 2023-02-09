@@ -35,29 +35,9 @@ import PushNotification from 'react-native-push-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const Home = () => {
   const navigation = useNavigation();
-  const [dataArray, setDataArray] = React.useState([]);
+  const [user_id, setUserId] = React.useState(0);
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      // PushNotification.createChannel(
-      //   {
-      //     channelId: 'schednotes_channel_id', // (required)
-      //     channelName: 'My channel', // (required)
-      //     channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-      //     playSound: false, // (optional) default: true
-      //     soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-      //     // (optional) default: Importance.HIGH. Int value of the Android notification importance
-      //     vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
-      //   },
-      //   created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
-      // );
-      //console.log('refreshed_home');
-      // BackgroundTimer.runBackgroundTimer(() => {
-      //   //code that will be called every 1hr
-      //   console.log('timer here 1h');
-      //   Background.startService();
-      //   localNotif();
-      // }, 3600000);
-      // BackgroundTimer.stopBackgroundTimer();
       requestLocationPermission();
     });
 
@@ -65,18 +45,23 @@ const Home = () => {
       unsubscribe;
     };
   }, [navigation]);
-  const localNotif = () => {
-    PushNotification.localNotification({
-      //... You can use all the options from localNotifications
-      channelId: 'schednotes_channel_id',
-      message: 'Wake up SchedNotes!', // (required)
-      allowWhileIdle: true,
-      playSound: false, // (optional) set notification to work while on doze, default: false
-    });
-    setTimeout(() => {
-      PushNotification.cancelAllLocalNotifications();
-    }, 600000);
+  React.useEffect(() => {
+    // retrieveUser();
+  }, [user_id]);
+  const retrieveUser = async () => {
+    try {
+      const valueString = await AsyncStorage.getItem('user_details');
+      if (valueString != null) {
+        const value = JSON.parse(valueString);
+        // setUserId(value.user_id);
+        logOutUser(value.user_id);
+        // console.log(value.user_id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   const requestLocationPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -105,28 +90,28 @@ const Home = () => {
         //   Geolocation.getCurrentPosition(info => console.log(info));
         // Background.startService();
         console.log('Location permission granted');
-        // setTimeout(() => {
-        //   PushNotification.getDeliveredNotifications(e => {
-        //     console.log(e);
+        setTimeout(() => {
+          PushNotification.getDeliveredNotifications(e => {
+            console.log(e);
 
-        //     if (e != '') {
-        //       e.map((item, index) => {
-        //         if (item.identifier == 20220302 && item.title == 'SchedNotes') {
-        //           console.log('horray');
-        //           Background.startService();
-        //         } else {
-        //           Background.stopService();
-        //           AsyncStorage.clear();
-        //           navigation.navigate('Login');
-        //         }
-        //       });
-        //     } else {
-        //       Background.stopService();
-        //       AsyncStorage.clear();
-        //       navigation.navigate('Login');
-        //     }
-        //   });
-        // }, 2000);
+            if (e != '') {
+              e.map((item, index) => {
+                if (item.identifier == 20220302 && item.title == 'SchedNotes') {
+                  console.log('horray');
+                  Background.startService();
+                } else {
+                  console.log('logout');
+                  // Background.stopService();
+                  // AsyncStorage.clear();
+                  // navigation.navigate('Login');
+                  retrieveUser();
+                }
+              });
+            } else {
+              retrieveUser();
+            }
+          });
+        }, 2000);
       } else {
         Alert.alert(
           'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features.',
@@ -140,23 +125,11 @@ const Home = () => {
       console.log(err);
     }
   };
-  const db = open({name: 'myDB'});
-  const [heartBeat, setHeartBeat] = React.useState(false);
-  const queryUsers = () => {
-    const queryResult = db.execute(`SELECT * FROM "tbl_coordinates"`);
-    var data = queryResult.rows._array;
 
-    var data_array = data.map((item, index) => {
-      return {
-        id: item.id,
-        latitude: item.latitude,
-        longitude: item.longitude,
-        date_added: item.date_added,
-      };
-    });
+  const logOutUser = user_id => {
     const formData = new FormData();
-    formData.append('array_data', JSON.stringify(data_array));
-    fetch(window.name + 'sendArrayData.php', {
+    formData.append('user_id', user_id);
+    fetch(window.name + 'loginMobile/revoke_account', {
       method: 'POST',
       header: {
         Accept: 'application/json',
@@ -166,50 +139,21 @@ const Home = () => {
     })
       .then(response => response.json())
       .then(responseJson => {
-        //   data.map((item, index) => {
-        //     console.log(item);
-        //   });
-        console.log(responseJson);
+        console.log(user_id);
+        if (responseJson.array_data != '') {
+          if (responseJson.array_data[0].res == 1) {
+            Background.stopService();
+            AsyncStorage.clear();
+            navigation.navigate('Login');
+          }
+        }
       })
       .catch(error => {
         console.error(error);
         // Alert.alert('Internet Connection Error');
       });
   };
-  const dropTable = () => {
-    const queryResult = db.execute(`DROP TABLE IF EXISTS tbl_coordinates `);
-  };
-
   return (
-    // <SafeAreaView>
-    //   <View>
-    //     <Button
-    //       title="Get Data"
-    //       onPress={() => {
-    //         // console.log('stop service');
-    //         // Background.stopService();
-    //         queryUsers();
-    //       }}></Button>
-    //     <Button
-    //       title="Drop"
-    //       onPress={() => {
-    //         // console.log('stop service');
-    //         // Background.stopService();
-    //         dropTable();
-    //       }}></Button>
-    //     <Button
-    //       title="Start BG"
-    //       onPress={() => {
-    //         // console.log('stop service');
-    //       }}></Button>
-    //     <Button
-    //       title="Stop BG"
-    //       onPress={() => {
-    //         console.log('stop service');
-    //         Background.stopService();
-    //       }}></Button>
-    //   </View>
-    // </SafeAreaView>
     <NativeBaseProvider>
       <Box safeAreaTop backgroundColor="#7005a3" />
       <HStack
@@ -235,27 +179,7 @@ const Home = () => {
           </TouchableOpacity>
         </HStack>
       </HStack>
-      <Center>
-        {/* <Button
-          title="Drop"
-          onPress={() => {
-            // console.log('stop service');
-            // Background.stopService();
-            dropTable();
-          }}></Button>
-        <Button
-          title="Start BG"
-          onPress={() => {
-            Background.startService();
-          }}></Button>
-        <Button
-          title="Stop BG"
-          onPress={() => {
-            console.log('stop service');
-            Background.stopService();
-          }}></Button> */}
-        Welcome!
-      </Center>
+      <Center>Welcome!</Center>
     </NativeBaseProvider>
   );
 };
