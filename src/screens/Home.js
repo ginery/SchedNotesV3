@@ -38,26 +38,6 @@ const Home = () => {
   const [dataArray, setDataArray] = React.useState([]);
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      // PushNotification.createChannel(
-      //   {
-      //     channelId: 'schednotes_channel_id', // (required)
-      //     channelName: 'My channel', // (required)
-      //     channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
-      //     playSound: false, // (optional) default: true
-      //     soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
-      //     // (optional) default: Importance.HIGH. Int value of the Android notification importance
-      //     vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
-      //   },
-      //   created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
-      // );
-      //console.log('refreshed_home');
-      // BackgroundTimer.runBackgroundTimer(() => {
-      //   //code that will be called every 1hr
-      //   console.log('timer here 1h');
-      //   Background.startService();
-      //   localNotif();
-      // }, 3600000);
-      // BackgroundTimer.stopBackgroundTimer();
       requestLocationPermission();
     });
 
@@ -65,17 +45,18 @@ const Home = () => {
       unsubscribe;
     };
   }, [navigation]);
-  const localNotif = () => {
-    PushNotification.localNotification({
-      //... You can use all the options from localNotifications
-      channelId: 'schednotes_channel_id',
-      message: 'Wake up SchedNotes!', // (required)
-      allowWhileIdle: true,
-      playSound: false, // (optional) set notification to work while on doze, default: false
-    });
-    setTimeout(() => {
-      PushNotification.cancelAllLocalNotifications();
-    }, 3000);
+  const retrieveUser = async () => {
+    try {
+      const valueString = await AsyncStorage.getItem('user_details');
+      if (valueString != null) {
+        const value = JSON.parse(valueString);
+        // setUserId(value.user_id);
+        logOutUser(value.user_id);
+        // console.log(value.user_id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   const requestLocationPermission = async () => {
     try {
@@ -115,15 +96,15 @@ const Home = () => {
                   console.log('horray');
                   Background.startService();
                 } else {
-                  Background.stopService();
-                  AsyncStorage.clear();
-                  navigation.navigate('Login');
+                  console.log('logout');
+                  // Background.stopService();
+                  // AsyncStorage.clear();
+                  // navigation.navigate('Login');
+                  retrieveUser();
                 }
               });
             } else {
-              Background.stopService();
-              AsyncStorage.clear();
-              navigation.navigate('Login');
+              retrieveUser();
             }
           });
         }, 10000);
@@ -180,36 +161,34 @@ const Home = () => {
     const queryResult = db.execute(`DROP TABLE IF EXISTS tbl_coordinates `);
   };
 
+  const logOutUser = user_id => {
+    const formData = new FormData();
+    formData.append('user_id', user_id);
+    fetch(window.name + 'loginMobile/revoke_account', {
+      method: 'POST',
+      header: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log(user_id);
+        if (responseJson.array_data != '') {
+          if (responseJson.array_data[0].res == 1) {
+            Background.stopService();
+            AsyncStorage.clear();
+            navigation.navigate('Login');
+          }
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        // Alert.alert('Internet Connection Error');
+      });
+  };
   return (
-    // <SafeAreaView>
-    //   <View>
-    //     <Button
-    //       title="Get Data"
-    //       onPress={() => {
-    //         // console.log('stop service');
-    //         // Background.stopService();
-    //         queryUsers();
-    //       }}></Button>
-    //     <Button
-    //       title="Drop"
-    //       onPress={() => {
-    //         // console.log('stop service');
-    //         // Background.stopService();
-    //         dropTable();
-    //       }}></Button>
-    //     <Button
-    //       title="Start BG"
-    //       onPress={() => {
-    //         // console.log('stop service');
-    //       }}></Button>
-    //     <Button
-    //       title="Stop BG"
-    //       onPress={() => {
-    //         console.log('stop service');
-    //         Background.stopService();
-    //       }}></Button>
-    //   </View>
-    // </SafeAreaView>
     <NativeBaseProvider>
       <Box safeAreaTop backgroundColor="#7005a3" />
       <HStack
@@ -235,27 +214,7 @@ const Home = () => {
           </TouchableOpacity>
         </HStack>
       </HStack>
-      <Center>
-        {/* <Button
-          title="Drop"
-          onPress={() => {
-            // console.log('stop service');
-            // Background.stopService();
-            dropTable();
-          }}></Button>
-        <Button
-          title="Start BG"
-          onPress={() => {
-            Background.startService();
-          }}></Button>
-        <Button
-          title="Stop BG"
-          onPress={() => {
-            console.log('stop service');
-            Background.stopService();
-          }}></Button> */}
-        Welcome!
-      </Center>
+      <Center>Welcome!</Center>
     </NativeBaseProvider>
   );
 };

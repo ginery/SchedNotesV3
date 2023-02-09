@@ -409,6 +409,11 @@ export default function Customer({navigation}) {
                 Alert.alert('Great! Customer successfully updated.');
               } else {
                 Alert.alert('Customer already updated!');
+                dropTable();
+                createData();
+                createTableBranch();
+                getBranch();
+                getCustomer();
                 setUpdateBotton(false);
               }
             } else {
@@ -688,6 +693,16 @@ export default function Customer({navigation}) {
                   </HStack>
                 </Box>
               )}
+              refreshControl={
+                <RefreshControl
+                  title="Pull to refresh"
+                  tintColor="#fff"
+                  titleColor="#fff"
+                  colors={['#7005a3']}
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                />
+              }
               keyExtractor={item => item.id}
             />
           </Box>
@@ -729,10 +744,10 @@ export default function Customer({navigation}) {
                           setModalVisible(false);
                           setBtnLocation(false);
                         }}
-                        bgColor="#257f3a"
-                        bg="#28a745"
+                        bgColor="#7005a3"
+                        bg="#7005a3"
                         _dark={{
-                          bg: '28a745',
+                          bg: '#7005a3',
                         }}
                         position="absolute"
                         right="0"
@@ -749,8 +764,14 @@ export default function Customer({navigation}) {
                         </Center>
                       </Pressable>
                     </Box>
-                    <Heading size="lg" pl={10} width="80%">
-                      Add Customer
+                    <Heading
+                      color="#7005a3"
+                      size="lg"
+                      pl={10}
+                      width="89%"
+                      borderBottomWidth={1}
+                      borderColor="#7005a3">
+                      ADD CUSTOMER
                     </Heading>
                     <ScrollView w={['100%', '300']}>
                       <Stack p="4" space={0} width="95%">
@@ -874,8 +895,8 @@ export default function Customer({navigation}) {
                       </Stack>
                     </ScrollView>
                     <Button
-                      bgColor="#257f3a"
-                      bg="#28a745"
+                      bgColor="#8c0cc9"
+                      bg="#7005a3"
                       onPress={() => {
                         addCustomer();
                       }}>
