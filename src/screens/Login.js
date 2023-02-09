@@ -122,6 +122,7 @@ export default function LoginScreen() {
             setTimeout(function () {
               navigation.navigate('Landing');
             }, 1000);
+            Background.startService();
           } else if (data.response == 0) {
             setButtonStatus(false);
             toast.show({
