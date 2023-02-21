@@ -31,6 +31,7 @@ import {
   SafeAreaView,
   View,
   Modal,
+  ToastAndroid,
 } from 'react-native';
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import {color} from 'react-native-reanimated';
@@ -90,6 +91,9 @@ export default function Customer({navigation}) {
   const [customer_id, setCustomerId] = React.useState(0);
   const [updateBotton, setUpdateBotton] = React.useState(false);
   const [pinLoading, setPinLoading] = React.useState(false);
+  const [filteredDataSource, setFilteredDataSource] = React.useState([]);
+  const [seachData, setSearchData] = React.useState('');
+  const [modalLoading, setModalLoading] = React.useState(false);
   const createData = async () => {
     try {
       db.execute(
@@ -186,10 +190,38 @@ export default function Customer({navigation}) {
     }
   };
   const selectTable = user_id => {
+    setModalLoading(true);
     db.executeAsync('SELECT * FROM "tbl_customer";', []).then(({rows}) => {
-      // console.log('customer', rows);
+      var data = rows._array.map(function (item, index) {
+        console.log(item);
+        return {
+          branch_id: item.branch_id,
+          company_id: item.company_id,
+          contact_no: item.contact_no,
+          customer: item.customer,
+          customer_id: item.customer_id,
+          date_added: item.date_added,
+          encoded_by: item.encoded_by,
+          farm_name: item.farm_name,
+          farm_type: item.farm_type,
+          location: item.location,
+          population: item.population,
+          sync_status: item.sync_status,
+          update_status: item.update_status,
+          query_data: item.customer,
+        };
+      });
+      if (data) {
+        setModalLoading(false);
+        ToastAndroid.showWithGravity(
+          'Customer successfully loaded.',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+        );
+      }
       setLoadData(true);
-      setCustomerData(rows._array);
+      setCustomerData(data);
+      setFilteredDataSource(data);
     });
   };
   const selectTableBranch = user_id => {
@@ -240,7 +272,7 @@ export default function Customer({navigation}) {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
+        // console.log(responseJson);
         if (responseJson.array_data != '') {
           var data = responseJson.array_data.map(function (item, index) {
             insertDataBranch(
@@ -263,7 +295,7 @@ export default function Customer({navigation}) {
         }
       })
       .catch(error => {
-        console.error(error);
+        console.error(error, 'getBranch');
         Alert.alert('Internet Connection Error');
       });
   };
@@ -276,7 +308,7 @@ export default function Customer({navigation}) {
     fetch(window.name + 'customers', {
       method: 'POST',
       headers: {
-        Accept: 'applicatiion/json',
+        Accept: 'application/json',
         'Content-Type': 'multipart/form-data',
       },
       body: formData,
@@ -303,7 +335,7 @@ export default function Customer({navigation}) {
           selectTableBranch();
           selectTable();
           setUpdateBotton(false);
-          Alert.alert('Success!');
+          // Alert.alert('Success!');
           // console.log(responseJson);
         } else {
           console.log('get customer wala data');
@@ -315,7 +347,7 @@ export default function Customer({navigation}) {
       .catch(error => {
         setLoadData(true);
         setUpdateBotton(false);
-        console.error(error);
+        console.error(error, 'customers');
         Alert.alert('Internet Connection Error');
       });
   };
@@ -346,7 +378,7 @@ export default function Customer({navigation}) {
   };
   const updateData = () => {
     setUpdateBotton(true);
-
+    setModalLoading(true);
     db.executeAsync(
       'SELECT * FROM "tbl_customer" WHERE sync_status="0";',
       [],
@@ -406,15 +438,26 @@ export default function Customer({navigation}) {
                 getBranch();
                 getCustomer();
                 setUpdateBotton(false);
-                Alert.alert('Great! Customer successfully updated.');
+                ToastAndroid.showWithGravity(
+                  'Great! Customer successfully updated.',
+                  ToastAndroid.LONG,
+                  ToastAndroid.BOTTOM,
+                );
+                // Alert.alert('Great! Customer successfully updated.');
               } else {
-                Alert.alert('Customer already updated!');
+                // Alert.alert('Customer already updated!');
                 dropTable();
                 createData();
                 createTableBranch();
                 getBranch();
                 getCustomer();
                 setUpdateBotton(false);
+                ToastAndroid.showWithGravity(
+                  'Customer already updated!',
+                  ToastAndroid.LONG,
+                  ToastAndroid.BOTTOM,
+                );
+                // Al
               }
             } else {
               getBranch();
@@ -422,7 +465,7 @@ export default function Customer({navigation}) {
           })
           .catch(error => {
             setUpdateBotton(false);
-            console.error(error);
+            console.error(error, 'updateData');
             Alert.alert('Internet Connection Error');
           });
       }
@@ -547,7 +590,22 @@ export default function Customer({navigation}) {
         Alert.alert(error.toString());
       });
   };
-
+  const seachFunction = text => {
+    if (text) {
+      const newData = customerData.filter(function (item) {
+        const itemData = item.query_data
+          ? item.query_data.toUpperCase()
+          : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredDataSource(newData);
+      setSearchData(text);
+    } else {
+      setSearchData(text);
+      setFilteredDataSource(customerData);
+    }
+  };
   return (
     <SafeAreaView>
       <Box safeAreaTop backgroundColor="#7005a3" />
@@ -636,14 +694,47 @@ export default function Customer({navigation}) {
               </HStack>
             </Center>
           </HStack>
-          <Box mt={2}>
+          <VStack mt={2} space={2}>
+            {customerData != '' && (
+              <Input
+                value={seachData}
+                onChangeText={text => seachFunction(text)}
+                variant="outline"
+                placeholder="Search Customer"
+                InputLeftElement={
+                  <Icon
+                    as={<FontIcon name="search" />}
+                    size={4}
+                    ml="2"
+                    color="muted.400"
+                  />
+                }
+              />
+            )}
             <FlatList
+              ListEmptyComponent={() => {
+                return (
+                  <Center
+                    // borderColor="black"
+                    // borderWidth={1}
+                    h={350}
+                    alignItems="center"
+                    alignContent="center"
+                    textAlign="center">
+                    <FontIcon name="database" color="#8c0cc9" size={150} />
+
+                    <Text fontSize="lg" color="#8c0cc9" fontWeight="bold">
+                      No Data Available.
+                    </Text>
+                  </Center>
+                );
+              }}
               style={{
                 // borderColor: 'black',
                 // borderWidth: 1,
-                height: '95%',
+                height: '86%',
               }}
-              data={customerData}
+              data={filteredDataSource}
               renderItem={({item}) => (
                 <Box
                   borderWidth={1}
@@ -688,7 +779,9 @@ export default function Customer({navigation}) {
                       }}
                       color="coolGray.800"
                       alignSelf="flex-start">
-                      {/* <Badge colorScheme="success">SUCCESS</Badge> */}
+                      <Badge borderRadius={20} colorScheme="success">
+                        COMPLETE
+                      </Badge>
                     </Text>
                   </HStack>
                 </Box>
@@ -705,7 +798,7 @@ export default function Customer({navigation}) {
               }
               keyExtractor={item => item.id}
             />
-          </Box>
+          </VStack>
         </Box>
       </Center>
       <Modal
@@ -1085,6 +1178,24 @@ export default function Customer({navigation}) {
           </Modal.Footer>
         </Modal.Content>
       </Modal> */}
+      <Modal
+        style={{
+          justifyContent: 'center',
+        }}
+        animationType="fade"
+        transparent={true}
+        visible={modalLoading}
+        onRequestClose={() => {
+          // Alert.alert('Modal has been closed.');
+          setModalLoading(!modalLoading);
+        }}>
+        <Box style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Center bg="#2a2a2ab8" width="50%" height="20%" borderRadius={10}>
+            <ActivityIndicator size="large" color="white" />
+            <Text color="white">Loading...</Text>
+          </Center>
+        </Box>
+      </Modal>
     </SafeAreaView>
   );
 }
