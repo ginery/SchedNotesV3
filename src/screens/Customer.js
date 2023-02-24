@@ -97,7 +97,7 @@ export default function Customer({navigation}) {
   const createData = async () => {
     try {
       db.execute(
-        'CREATE TABLE IF NOT EXISTS "tbl_customer" (customer_id INTEGER PRIMARY KEY AUTOINCREMENT, company_id TEXT NOT NULL, branch_id TEXT NOT NULL, farm_name DATETIME, customer DATETIME, farm_type TEXT NOT NULL, population TEXT NOT NULL,contact_no TEXT NOT NULL, location TEXT NOT NULL, date_added DATETIME, encoded_by TEXT NOT NULL, update_status TEXT NOT NULL, sync_status INTEGER);',
+        'CREATE TABLE IF NOT EXISTS "tbl_customer" (customer_id INTEGER PRIMARY KEY AUTOINCREMENT, company_id TEXT NOT NULL, branch_id TEXT NOT NULL,branch TEXT NOT NULL, farm_name DATETIME, customer DATETIME, farm_type TEXT NOT NULL, population TEXT NOT NULL,contact_no TEXT NOT NULL, location TEXT NOT NULL, date_added DATETIME, encoded_by TEXT NOT NULL, update_status TEXT NOT NULL, sync_status INTEGER);',
       );
     } catch (e) {
       console.warn('Error opening db:', e);
@@ -154,6 +154,7 @@ export default function Customer({navigation}) {
   const InsertData = async (
     company_id,
     branch_id,
+    branch,
     farmname,
     customer,
     farm_type,
@@ -168,10 +169,11 @@ export default function Customer({navigation}) {
     // Basic request
     try {
       db.execute(
-        'INSERT INTO "tbl_customer" (company_id, branch_id, farm_name, customer, farm_type, population, contact_no, location, date_added, encoded_by, update_status, sync_status) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);',
+        'INSERT INTO "tbl_customer" (company_id, branch_id, branch, farm_name, customer, farm_type, population, contact_no, location, date_added, encoded_by, update_status, sync_status) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);',
         [
           company_id,
           branch_id,
+          branch,
           farmname,
           customer,
           farm_type,
@@ -196,6 +198,7 @@ export default function Customer({navigation}) {
         console.log(item);
         return {
           branch_id: item.branch_id,
+          branch: item.branch,
           company_id: item.company_id,
           contact_no: item.contact_no,
           customer: item.customer,
@@ -320,6 +323,7 @@ export default function Customer({navigation}) {
             InsertData(
               item.company_id,
               item.branch_id,
+              item.branch,
               item.farm_name,
               item.customer,
               item.farm_type,
@@ -501,6 +505,7 @@ export default function Customer({navigation}) {
           InsertData(
             0,
             branch_id,
+            '',
             farmname,
             fullname,
             farmtype,
@@ -722,7 +727,6 @@ export default function Customer({navigation}) {
                     alignContent="center"
                     textAlign="center">
                     <FontIcon name="database" color="#8c0cc9" size={150} />
-
                     <Text fontSize="lg" color="#8c0cc9" fontWeight="bold">
                       No Data Available.
                     </Text>
@@ -768,21 +772,34 @@ export default function Customer({navigation}) {
                         _dark={{
                           color: 'warmGray.200',
                         }}>
-                        {/* <Badge colorScheme="info">INFO</Badge> */}
+                        <Badge colorScheme="info">{item.branch}</Badge>
                       </Text>
                     </VStack>
                     <Spacer />
-                    <Text
-                      fontSize="xs"
-                      _dark={{
-                        color: 'warmGray.50',
-                      }}
-                      color="coolGray.800"
-                      alignSelf="flex-start">
-                      <Badge borderRadius={20} colorScheme="success">
-                        COMPLETE
-                      </Badge>
-                    </Text>
+                    <VStack alignContent="center" alignItems="center">
+                      <Center space={2}>
+                        <Text
+                          fontSize="xs"
+                          _dark={{
+                            color: 'warmGray.50',
+                          }}
+                          color="coolGray.800"
+                          alignSelf="flex-start">
+                          <Badge borderRadius={20} colorScheme="success">
+                            COMPLETE
+                          </Badge>
+                        </Text>
+                        <Text
+                          fontSize="xs"
+                          _dark={{
+                            color: 'warmGray.50',
+                          }}
+                          color="coolGray.800"
+                          alignSelf="flex-start">
+                          {item.date_added}
+                        </Text>
+                      </Center>
+                    </VStack>
                   </HStack>
                 </Box>
               )}

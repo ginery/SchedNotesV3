@@ -18,7 +18,7 @@ import {
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import {NativeModules, PermissionsAndroid} from 'react-native';
+import {NativeModules, PermissionsAndroid, ToastAndroid} from 'react-native';
 import {ItemClick} from 'native-base/lib/typescript/components/composites/Typeahead/useTypeahead/types';
 const {Background} = NativeModules;
 export default function LoginScreen() {
@@ -145,16 +145,21 @@ export default function LoginScreen() {
           var data = responseJson.array_data[0];
           if (data.response == 1) {
             requestLocationPermission();
-            toast.show({
-              placement: 'top',
-              render: () => {
-                return (
-                  <Box bg="emerald.500" px="2" py="1" rounded="sm" mb={5}>
-                    <Text color="white">Great! Please Wait.</Text>
-                  </Box>
-                );
-              },
-            });
+            // toast.show({
+            //   placement: 'top',
+            //   render: () => {
+            //     return (
+            //       <Box bg="emerald.500" px="2" py="1" rounded="sm" mb={5}>
+            //         <Text color="white">Great! Please Wait.</Text>
+            //       </Box>
+            //     );
+            //   },
+            // });
+            ToastAndroid.showWithGravity(
+              'Great! Please Wait.',
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER,
+            );
             setItemStorage('user_details', {
               user_id: data.user_id,
               user_name: data.name,
@@ -166,38 +171,52 @@ export default function LoginScreen() {
               navigation.navigate('Landing');
             }, 1000);
           } else if (data.response == 0) {
-            setButtonStatus(false);
-            toast.show({
-              placement: 'top',
-              render: () => {
-                return (
-                  <Box bg="warning.500" px="2" py="1" rounded="sm" mb={5}>
-                    <Text color="white">Ops! Incorrect credential</Text>
-                  </Box>
-                );
-              },
-            });
+            // setButtonStatus(false);
+            // toast.show({
+            //   placement: 'top',
+            //   render: () => {
+            //     return (
+            //       <Box bg="warning.500" px="2" py="1" rounded="sm" mb={5}>
+            //         <Text color="white">Ops! Incorrect credential</Text>
+            //       </Box>
+            //     );
+            //   },
+            // });
+            ToastAndroid.showWithGravity(
+              'Ops! Incorrect credential',
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER,
+            );
             setButtonStatus(false);
           } else {
-            toast.show({
-              placement: 'top',
-              render: () => {
-                return (
-                  <Box bg="error.500" px="2" py="1" rounded="sm" mb={5}>
-                    <Text color="white">
-                      Aw snap! Something went wrong. Please try again
-                    </Text>
-                  </Box>
-                );
-              },
-            });
+            // toast.show({
+            //   placement: 'top',
+            //   render: () => {
+            //     return (
+            //       <Box bg="error.500" px="2" py="1" rounded="sm" mb={5}>
+            //         <Text color="white">
+            //           Aw snap! Something went wrong. Please try again
+            //         </Text>
+            //       </Box>
+            //     );
+            //   },
+            // });
+            ToastAndroid.showWithGravity(
+              'Aw snap! Something went wrong. Please try again',
+              ToastAndroid.SHORT,
+              ToastAndroid.CENTER,
+            );
             setButtonStatus(false);
           }
         })
         .catch(error => {
           setButtonStatus(false);
           console.error(error);
-          Alert.alert('Internet Connection Error');
+          ToastAndroid.showWithGravity(
+            error,
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER,
+          );
         });
     }
   };
