@@ -38,7 +38,7 @@ export default function Sidebar({...props}) {
         setUserFname(value.user_name);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
   return (

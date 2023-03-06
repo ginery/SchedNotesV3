@@ -55,7 +55,7 @@ const Home = () => {
         // console.log(value.user_id);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
   const requestLocationPermission = async () => {
@@ -72,9 +72,9 @@ const Home = () => {
       );
 
       if (granted_bg === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Location permission granted background');
+        // console.log('Location permission granted background');
       } else {
-        console.log('Location permission not granted background');
+        // console.log('Location permission not granted background');
         Alert.alert(
           'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features',
         );
@@ -85,18 +85,18 @@ const Home = () => {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         //   Geolocation.getCurrentPosition(info => console.log(info));
         // Background.startService();
-        console.log('Location permission granted');
+        // console.log('Location permission granted');
         setTimeout(() => {
           PushNotification.getDeliveredNotifications(e => {
-            console.log(e);
+            // console.log(e);
 
             if (e != '') {
               e.map((item, index) => {
                 if (item.identifier == 20220302 && item.title == 'SchedNotes') {
-                  console.log('horray');
+                  // console.log('horray');
                   Background.startService();
                 } else {
-                  console.log('logout');
+                  // console.log('logout');
                   // Background.stopService();
                   // AsyncStorage.clear();
                   // navigation.navigate('Login');
@@ -115,10 +115,10 @@ const Home = () => {
         AsyncStorage.clear();
         navigation.navigate('Login');
 
-        console.log('Location permission denied');
+        // console.log('Location permission denied');
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   };
   const db = open({name: 'myDB'});
@@ -150,10 +150,10 @@ const Home = () => {
         //   data.map((item, index) => {
         //     console.log(item);
         //   });
-        console.log(responseJson);
+        // console.log(responseJson);
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
         // Alert.alert('Internet Connection Error');
       });
   };
@@ -174,7 +174,7 @@ const Home = () => {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(user_id);
+        // console.log(user_id);
         if (responseJson.array_data != '') {
           if (responseJson.array_data[0].res == 1) {
             Background.stopService();
@@ -184,7 +184,7 @@ const Home = () => {
         }
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
         // Alert.alert('Internet Connection Error');
       });
   };

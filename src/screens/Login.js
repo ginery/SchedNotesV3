@@ -18,7 +18,7 @@ import {
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import {NativeModules, PermissionsAndroid} from 'react-native';
+import {NativeModules, PermissionsAndroid, ToastAndroid} from 'react-native';
 import {ItemClick} from 'native-base/lib/typescript/components/composites/Typeahead/useTypeahead/types';
 const {Background} = NativeModules;
 export default function LoginScreen() {
@@ -63,14 +63,14 @@ export default function LoginScreen() {
       if (valueString != null) {
         navigation.navigate('Landing');
       } else {
-        console.log('login');
+        // console.log('login');
         // navigate('Login');
         navigation.navigate('Login');
       }
 
       //setUserID(value.user_fname);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
   const requestLocationPermission = async () => {
@@ -87,9 +87,9 @@ export default function LoginScreen() {
       );
 
       if (granted_bg === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Location permission granted background');
+        // console.log('Location permission granted background');
       } else {
-        console.log('Location permission not granted background');
+        // console.log('Location permission not granted background');
         Alert.alert(
           'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features',
         );
@@ -100,7 +100,7 @@ export default function LoginScreen() {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         //   Geolocation.getCurrentPosition(info => console.log(info));
         Background.startService();
-        console.log('Location permission granted');
+        // console.log('Location permission granted');
       } else {
         Alert.alert(
           'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features.',
@@ -108,24 +108,29 @@ export default function LoginScreen() {
         AsyncStorage.clear();
         navigation.navigate('Login');
 
-        console.log('Location permission denied');
+        // console.log('Location permission denied');
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   };
   const login = () => {
     if (username == '' && password == '') {
-      toast.show({
-        placement: 'top',
-        render: () => {
-          return (
-            <Box bg="warning.500" px="2" py="1" rounded="sm" mb={5}>
-              <Text color="white">Please fill out the text filled.</Text>
-            </Box>
-          );
-        },
-      });
+      // toast.show({
+      //   placement: 'top',
+      //   render: () => {
+      //     return (
+      //       <Box bg="warning.500" px="2" py="1" rounded="sm" mb={5}>
+      //         <Text color="white">Please fill out the text filled.</Text>
+      //       </Box>
+      //     );
+      //   },
+      // });
+      ToastAndroid.showWithGravity(
+        'Please fill out the text filled.',
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
     } else {
       setButtonStatus(true);
       const formData = new FormData();
@@ -141,7 +146,7 @@ export default function LoginScreen() {
       })
         .then(response => response.json())
         .then(responseJson => {
-          console.log(responseJson);
+          // console.log(responseJson);
           var data = responseJson.array_data[0];
           if (data.response == 1) {
             requestLocationPermission();
@@ -198,7 +203,7 @@ export default function LoginScreen() {
         })
         .catch(error => {
           setButtonStatus(false);
-          console.error(error);
+          // console.error(error);
           Alert.alert('Internet Connection Error');
         });
     }

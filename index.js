@@ -116,7 +116,7 @@ const createData = async () => {
       'CREATE TABLE IF NOT EXISTS "tbl_coordinates" (id INTEGER PRIMARY KEY AUTOINCREMENT, latitude TEXT NOT NULL, longitude TEXT NOT NULL, date_added DATETIME, user_id TEXT NOT NULL, log TEXT NOT NULL);',
     );
   } catch (e) {
-    console.warn('Error opening db:', e);
+    // console.warn('Error opening db:', e);
   }
 };
 const InsetData = (user_id, latitude, longitude) => {
@@ -167,7 +167,7 @@ const directOnlinesend = (latitude, longitude, user_id) => {
       // console.log(responseJson);
     })
     .catch(error => {
-      console.error(error);
+      // console.error(error);
       // Alert.alert('Internet Connection Error');
     });
 };
@@ -209,8 +209,7 @@ const queryUsers = user_id => {
       }
     })
     .catch(error => {
-      console.error(error);
-
+      // console.error(error);
       // Alert.alert('Internet Connection Error');
     });
 };
@@ -233,7 +232,7 @@ const MyHeadlessTask = async () => {
       //   console.log(latestposition);
     },
     error => {
-      console.log(error);
+      // console.log(error);
       InsetData(user_id, '', '');
     },
     {enableHighAccuracy: true},
@@ -243,8 +242,8 @@ const MyHeadlessTask = async () => {
     // console.log(info.coords.latitude);
 
     NetInfo.fetch().then(state => {
-      console.log('Connection type', state.type);
-      console.log('Is connected?', state.isConnected);
+      // console.log('Connection type', state.type);
+      // console.log('Is connected?', state.isConnected);
       // console.log(selectTable());
       createData();
       if (state.isConnected == true) {

@@ -21,7 +21,6 @@ import {
   Stack,
   Pressable,
   ScrollView,
-  FlatList,
 } from 'native-base';
 import {
   RefreshControl,
@@ -31,6 +30,7 @@ import {
   SafeAreaView,
   View,
   Modal,
+  FlatList,
 } from 'react-native';
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import {color} from 'react-native-reanimated';
@@ -96,7 +96,7 @@ export default function Customer({navigation}) {
         'CREATE TABLE IF NOT EXISTS "tbl_customer" (customer_id INTEGER PRIMARY KEY AUTOINCREMENT, company_id TEXT NOT NULL, branch_id TEXT NOT NULL, farm_name DATETIME, customer DATETIME, farm_type TEXT NOT NULL, population TEXT NOT NULL,contact_no TEXT NOT NULL, location TEXT NOT NULL, date_added DATETIME, encoded_by TEXT NOT NULL, update_status TEXT NOT NULL, sync_status INTEGER);',
       );
     } catch (e) {
-      console.warn('Error opening db:', e);
+      // console.warn('Error opening db:', e);
     }
   };
   const createTableBranch = async () => {
@@ -105,7 +105,7 @@ export default function Customer({navigation}) {
         'CREATE TABLE IF NOT EXISTS "tbl_branch" (branch_id INTEGER, island_group TEXT NOT NULL, region TEXT NOT NULL, province DATETIME, company_id INTEGER, branch TEXT NOT NULL, remarks TEXT NOT NULL, status TEXT NOT NULL, coordinates TEXT NOT NULL);',
       );
     } catch (e) {
-      console.warn('Error opening db:', e);
+      // console.warn('Error opening db:', e);
     }
   };
   const dropTable = async () => {
@@ -113,7 +113,7 @@ export default function Customer({navigation}) {
       db.execute(`DROP TABLE IF EXISTS tbl_customer`);
       db.execute(`DROP TABLE IF EXISTS tbl_branch`);
     } catch (e) {
-      console.warn('Error opening db:', e);
+      // console.warn('Error opening db:', e);
     }
   };
 
@@ -144,7 +144,7 @@ export default function Customer({navigation}) {
         ],
       );
     } catch (e) {
-      console.warn('Error opening db:', e);
+      // console.warn('Error opening db:', e);
     }
   };
   const InsertData = async (
@@ -182,7 +182,7 @@ export default function Customer({navigation}) {
         ],
       );
     } catch (e) {
-      console.warn('Error opening db:', e);
+      // console.warn('Error opening db:', e);
     }
   };
   const selectTable = user_id => {
@@ -221,7 +221,7 @@ export default function Customer({navigation}) {
         // console.log(value.user_id);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -240,7 +240,7 @@ export default function Customer({navigation}) {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
+        // console.log(responseJson);
         if (responseJson.array_data != '') {
           var data = responseJson.array_data.map(function (item, index) {
             insertDataBranch(
@@ -263,7 +263,7 @@ export default function Customer({navigation}) {
         }
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
         Alert.alert('Internet Connection Error');
       });
   };
@@ -306,7 +306,7 @@ export default function Customer({navigation}) {
           Alert.alert('Success!');
           // console.log(responseJson);
         } else {
-          console.log('get customer wala data');
+          // console.log('get customer wala data');
           selectTableBranch();
           selectTable();
           setLoadData(true);
@@ -315,7 +315,7 @@ export default function Customer({navigation}) {
       .catch(error => {
         setLoadData(true);
         setUpdateBotton(false);
-        console.error(error);
+        // console.error(error);
         Alert.alert('Internet Connection Error');
       });
   };
@@ -354,7 +354,7 @@ export default function Customer({navigation}) {
       // console.log('customer', rows);
       var data = rows._array;
       if (data == '') {
-        console.log('wala sa data');
+        // console.log('wala sa data');
         setUpdateBotton(false);
         setLoadData(true);
         dropTable();
@@ -363,7 +363,7 @@ export default function Customer({navigation}) {
         getBranch();
         getCustomer();
       } else {
-        console.log('may data unod');
+        // console.log('may data unod');
         var data_array = data.map((item, index) => {
           return {
             company_id: item.company_id,
@@ -422,7 +422,7 @@ export default function Customer({navigation}) {
           })
           .catch(error => {
             setUpdateBotton(false);
-            console.error(error);
+            // console.error(error);
             Alert.alert('Internet Connection Error');
           });
       }
@@ -519,7 +519,7 @@ export default function Customer({navigation}) {
         }
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
         Alert.alert(error.toString());
       });
   };
@@ -543,11 +543,62 @@ export default function Customer({navigation}) {
         // }
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
         Alert.alert(error.toString());
       });
   };
-
+  const renderItem = React.useCallback(
+    ({item}) => (
+      <Box
+        borderWidth={1}
+        borderRadius={5}
+        mb={1}
+        _dark={{
+          borderColor: '#7005a3',
+        }}
+        padding={2}
+        borderColor="#7005a3">
+        <HStack space={[2, 3]} justifyContent="space-between">
+          <Avatar
+            size="48px"
+            source={
+              item.farm_type == 'L'
+                ? require('../assets/layer.png')
+                : require('../assets/pig.png')
+            }
+          />
+          <VStack>
+            <Text
+              _dark={{
+                color: 'warmGray.50',
+              }}
+              color="coolGray.800"
+              bold>
+              {item.customer}
+            </Text>
+            <Text
+              color="coolGray.600"
+              _dark={{
+                color: 'warmGray.200',
+              }}>
+              {/* <Badge colorScheme="info">INFO</Badge> */}
+            </Text>
+          </VStack>
+          <Spacer />
+          <Text
+            fontSize="xs"
+            _dark={{
+              color: 'warmGray.50',
+            }}
+            color="coolGray.800"
+            alignSelf="flex-start">
+            {/* <Badge colorScheme="success">SUCCESS</Badge> */}
+          </Text>
+        </HStack>
+      </Box>
+    ),
+    [],
+  );
   return (
     <SafeAreaView>
       <Box safeAreaTop backgroundColor="#7005a3" />
@@ -644,55 +695,8 @@ export default function Customer({navigation}) {
                 height: '95%',
               }}
               data={customerData}
-              renderItem={({item}) => (
-                <Box
-                  borderWidth={1}
-                  borderRadius={5}
-                  mb={1}
-                  _dark={{
-                    borderColor: '#7005a3',
-                  }}
-                  padding={2}
-                  borderColor="#7005a3">
-                  <HStack space={[2, 3]} justifyContent="space-between">
-                    <Avatar
-                      size="48px"
-                      source={
-                        item.farm_type == 'L'
-                          ? require('../assets/layer.png')
-                          : require('../assets/pig.png')
-                      }
-                    />
-                    <VStack>
-                      <Text
-                        _dark={{
-                          color: 'warmGray.50',
-                        }}
-                        color="coolGray.800"
-                        bold>
-                        {item.customer}
-                      </Text>
-                      <Text
-                        color="coolGray.600"
-                        _dark={{
-                          color: 'warmGray.200',
-                        }}>
-                        {/* <Badge colorScheme="info">INFO</Badge> */}
-                      </Text>
-                    </VStack>
-                    <Spacer />
-                    <Text
-                      fontSize="xs"
-                      _dark={{
-                        color: 'warmGray.50',
-                      }}
-                      color="coolGray.800"
-                      alignSelf="flex-start">
-                      {/* <Badge colorScheme="success">SUCCESS</Badge> */}
-                    </Text>
-                  </HStack>
-                </Box>
-              )}
+              keyExtractor={item => item.id}
+              renderItem={renderItem}
               refreshControl={
                 <RefreshControl
                   title="Pull to refresh"
@@ -703,7 +707,6 @@ export default function Customer({navigation}) {
                   onRefresh={onRefresh}
                 />
               }
-              keyExtractor={item => item.id}
             />
           </Box>
         </Box>
@@ -740,7 +743,7 @@ export default function Customer({navigation}) {
                     <Box>
                       <Pressable
                         onPress={() => {
-                          console.log('taps');
+                          // console.log('taps');
                           setModalVisible(false);
                           setBtnLocation(false);
                         }}
