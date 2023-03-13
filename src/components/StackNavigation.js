@@ -4,6 +4,7 @@ import LandingScreen from './LandingPage';
 import LoginScreen from '../screens/Login';
 import HomeScreen from '../screens/Home';
 import CustomerScreen from '../screens/Customer';
+import AddCustomerScreen from '../screens/AddCustomer';
 const Stack = createStackNavigator();
 const MainStackNavigator = () => {
   return (
@@ -26,6 +27,11 @@ const MainStackNavigator = () => {
       <Stack.Screen
         name="Customer"
         component={CustomerScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Add Customer"
+        component={AddCustomerScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>

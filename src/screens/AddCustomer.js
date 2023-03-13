@@ -33,7 +33,7 @@ import {NativeBaseProvider, Box, HStack, Text, Center} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import PushNotification from 'react-native-push-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const Home = () => {
+const AddCustomerScreen = () => {
   const navigation = useNavigation();
   const [dataArray, setDataArray] = React.useState([]);
   React.useEffect(() => {
@@ -221,4 +221,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default AddCustomerScreen;

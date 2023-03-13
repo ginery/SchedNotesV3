@@ -44,7 +44,7 @@ const setItemStorage = async (key, value) => {
 PushNotification.configure({
   // (optional) Called when Token is generated (iOS and Android)
   onRegister: function (token) {
-    console.log('TOKEN:', token);
+    // console.log('TOKEN:', token);
     var iidToken = token.token;
     setItemStorage('IDToken', {
       idtoken: iidToken,
@@ -53,7 +53,7 @@ PushNotification.configure({
 
   // (required) Called when a remote is received or opened, or local notification is opened
   onNotification: function (notification) {
-    console.log('NOTIFICATION:', notification.message);
+    // console.log('NOTIFICATION:', notification.message);
     // Alert.alert(notification.message);
     // process the notification
 
@@ -63,15 +63,14 @@ PushNotification.configure({
 
   // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
   onAction: function (notification) {
-    console.log('ACTION:', notification.action);
+    // console.log('ACTION:', notification.action);
     // console.log('NOTIFICATION:', notification);
-
     // process the action
   },
 
   // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
   onRegistrationError: function (err) {
-    console.error(err.message, err);
+    // console.error(err.message, err);
   },
 
   // IOS ONLY (optional): default: all - Permissions to register.
@@ -162,7 +161,11 @@ const directOnlinesend = (latitude, longitude, user_id) => {
         if (responseJson.array_data[0].response == 1) {
           // dropTable();
           createData();
+        } else {
+          InsetData(user_id, latitude, longitude);
         }
+      } else {
+        InsetData(user_id, latitude, longitude);
       }
       // console.log(responseJson);
     })
@@ -171,6 +174,7 @@ const directOnlinesend = (latitude, longitude, user_id) => {
       // Alert.alert('Internet Connection Error');
     });
 };
+//sync data to online
 const queryUsers = user_id => {
   const queryResult = db.execute(`SELECT * FROM "tbl_coordinates"`);
   var data = queryResult.rows._array;

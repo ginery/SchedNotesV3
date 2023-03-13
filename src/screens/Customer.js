@@ -31,6 +31,7 @@ import {
   View,
   Modal,
   FlatList,
+  ToastAndroid,
 } from 'react-native';
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import {color} from 'react-native-reanimated';
@@ -90,10 +91,13 @@ export default function Customer({navigation}) {
   const [customer_id, setCustomerId] = React.useState(0);
   const [updateBotton, setUpdateBotton] = React.useState(false);
   const [pinLoading, setPinLoading] = React.useState(false);
+  const [filteredDataSource, setFilteredDataSource] = React.useState([]);
+  const [seachData, setSearchData] = React.useState('');
+  const [modalLoading, setModalLoading] = React.useState(false);
   const createData = async () => {
     try {
       db.execute(
-        'CREATE TABLE IF NOT EXISTS "tbl_customer" (customer_id INTEGER PRIMARY KEY AUTOINCREMENT, company_id TEXT NOT NULL, branch_id TEXT NOT NULL, farm_name DATETIME, customer DATETIME, farm_type TEXT NOT NULL, population TEXT NOT NULL,contact_no TEXT NOT NULL, location TEXT NOT NULL, date_added DATETIME, encoded_by TEXT NOT NULL, update_status TEXT NOT NULL, sync_status INTEGER);',
+        'CREATE TABLE IF NOT EXISTS "tbl_customer" (customer_id INTEGER PRIMARY KEY AUTOINCREMENT, company_id TEXT NOT NULL, branch_id TEXT NOT NULL, branch TEXT NOT NULL, farm_name DATETIME, customer DATETIME, farm_type TEXT NOT NULL, population TEXT NOT NULL,contact_no TEXT NOT NULL, location TEXT NOT NULL, date_added DATETIME, encoded_by TEXT NOT NULL, update_status TEXT NOT NULL, sync_status INTEGER);',
       );
     } catch (e) {
       // console.warn('Error opening db:', e);
@@ -150,6 +154,7 @@ export default function Customer({navigation}) {
   const InsertData = async (
     company_id,
     branch_id,
+    branch,
     farmname,
     customer,
     farm_type,
@@ -164,10 +169,11 @@ export default function Customer({navigation}) {
     // Basic request
     try {
       db.execute(
-        'INSERT INTO "tbl_customer" (company_id, branch_id, farm_name, customer, farm_type, population, contact_no, location, date_added, encoded_by, update_status, sync_status) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);',
+        'INSERT INTO "tbl_customer" (company_id, branch_id, branch, farm_name, customer, farm_type, population, contact_no, location, date_added, encoded_by, update_status, sync_status) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);',
         [
           company_id,
           branch_id,
+          branch,
           farmname,
           customer,
           farm_type,
@@ -186,10 +192,39 @@ export default function Customer({navigation}) {
     }
   };
   const selectTable = user_id => {
+    setModalLoading(true);
     db.executeAsync('SELECT * FROM "tbl_customer";', []).then(({rows}) => {
-      // console.log('customer', rows);
+      var data = rows._array.map(function (item, index) {
+        console.log(item);
+        return {
+          branch_id: item.branch_id,
+          branch: item.branch,
+          company_id: item.company_id,
+          contact_no: item.contact_no,
+          customer: item.customer,
+          customer_id: item.customer_id,
+          date_added: item.date_added,
+          encoded_by: item.encoded_by,
+          farm_name: item.farm_name,
+          farm_type: item.farm_type,
+          location: item.location,
+          population: item.population,
+          sync_status: item.sync_status,
+          update_status: item.update_status,
+          query_data: item.customer,
+        };
+      });
+      if (data) {
+        setModalLoading(false);
+        ToastAndroid.showWithGravity(
+          'Customer successfully loaded.',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+        );
+      }
       setLoadData(true);
-      setCustomerData(rows._array);
+      setCustomerData(data);
+      setFilteredDataSource(data);
     });
   };
   const selectTableBranch = user_id => {
@@ -288,6 +323,7 @@ export default function Customer({navigation}) {
             InsertData(
               item.company_id,
               item.branch_id,
+              item.branch,
               item.farm_name,
               item.customer,
               item.farm_type,
@@ -303,7 +339,12 @@ export default function Customer({navigation}) {
           selectTableBranch();
           selectTable();
           setUpdateBotton(false);
-          Alert.alert('Success!');
+          // Alert.alert('Success!');
+          ToastAndroid.showWithGravity(
+            'Success.',
+            ToastAndroid.LONG,
+            ToastAndroid.CENTER,
+          );
           // console.log(responseJson);
         } else {
           // console.log('get customer wala data');
@@ -406,9 +447,19 @@ export default function Customer({navigation}) {
                 getBranch();
                 getCustomer();
                 setUpdateBotton(false);
-                Alert.alert('Great! Customer successfully updated.');
+                // Alert.alert('Great! Customer successfully updated.');
+                ToastAndroid.showWithGravity(
+                  'Great! Customer successfully updated.',
+                  ToastAndroid.LONG,
+                  ToastAndroid.CENTER,
+                );
               } else {
-                Alert.alert('Customer already updated!');
+                ToastAndroid.showWithGravity(
+                  'Customer already updated!',
+                  ToastAndroid.LONG,
+                  ToastAndroid.CENTER,
+                );
+                // Alert.alert('Customer already updated!');
                 dropTable();
                 createData();
                 createTableBranch();
@@ -430,6 +481,7 @@ export default function Customer({navigation}) {
   };
   const addCustomer = () => {
     // console.log(user_id);
+
     setBtnSave(true);
     if (
       user_id == '' ||
@@ -453,11 +505,17 @@ export default function Customer({navigation}) {
         var data = rows._array;
         // console.log(data[0].counter);
         if (data[0].counter > 0) {
-          Alert.alert('Customer Already Exist.');
+          // Alert.alert('Customer Already Exist.');
+          ToastAndroid.showWithGravity(
+            'Customer Already Exist.',
+            ToastAndroid.LONG,
+            ToastAndroid.CENTER,
+          );
         } else {
           InsertData(
             0,
             branch_id,
+            '',
             farmname,
             fullname,
             farmtype,
@@ -547,17 +605,33 @@ export default function Customer({navigation}) {
         Alert.alert(error.toString());
       });
   };
+  const seachFunction = text => {
+    if (text) {
+      const newData = customerData.filter(function (item) {
+        const itemData = item.query_data
+          ? item.query_data.toUpperCase()
+          : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredDataSource(newData);
+      setSearchData(text);
+    } else {
+      setSearchData(text);
+      setFilteredDataSource(customerData);
+    }
+  };
   const renderItem = React.useCallback(
     ({item}) => (
       <Box
+        key={item.customer_id}
         borderWidth={1}
         borderRadius={5}
         mb={1}
-        _dark={{
-          borderColor: '#7005a3',
-        }}
         padding={2}
-        borderColor="#7005a3">
+        borderColor={
+          item.branch_id == 0 || item.location == '' ? 'error.500' : '#7005a3'
+        }>
         <HStack space={[2, 3]} justifyContent="space-between">
           <Avatar
             size="48px"
@@ -568,32 +642,36 @@ export default function Customer({navigation}) {
             }
           />
           <VStack>
-            <Text
-              _dark={{
-                color: 'warmGray.50',
-              }}
-              color="coolGray.800"
-              bold>
+            <Text color="coolGray.800" bold>
               {item.customer}
             </Text>
-            <Text
-              color="coolGray.600"
-              _dark={{
-                color: 'warmGray.200',
-              }}>
-              {/* <Badge colorScheme="info">INFO</Badge> */}
+            <Text color="coolGray.600">
+              <Badge colorScheme="info">{item.branch}</Badge>
             </Text>
           </VStack>
           <Spacer />
-          <Text
-            fontSize="xs"
-            _dark={{
-              color: 'warmGray.50',
-            }}
-            color="coolGray.800"
-            alignSelf="flex-start">
-            {/* <Badge colorScheme="success">SUCCESS</Badge> */}
-          </Text>
+          <VStack alignContent="center" alignItems="center">
+            <Center space={2}>
+              <Text fontSize="xs" color="coolGray.800" alignSelf="flex-start">
+                {item.branch_id == 0 || item.location == '' ? (
+                  <>
+                    <Badge borderRadius={20} colorScheme="error">
+                      INCOMPLETE
+                    </Badge>
+                  </>
+                ) : (
+                  <>
+                    <Badge borderRadius={20} colorScheme="success">
+                      COMPLETE
+                    </Badge>
+                  </>
+                )}
+              </Text>
+              <Text fontSize="xs" color="coolGray.800" alignSelf="flex-start">
+                {item.date_added}
+              </Text>
+            </Center>
+          </VStack>
         </HStack>
       </Box>
     ),
@@ -660,7 +738,8 @@ export default function Customer({navigation}) {
                 <Button
                   colorScheme="emerald"
                   onPress={() => {
-                    setModalVisible(true);
+                    // setModalVisible(true);
+                    navigation.navigate('Add Customer');
                   }}>
                   <HStack>
                     <Text style={{color: 'white'}}>Add Customer</Text>
@@ -687,16 +766,53 @@ export default function Customer({navigation}) {
               </HStack>
             </Center>
           </HStack>
-          <Box mt={2}>
+          <VStack mt={2} space={2}>
+            {customerData != '' && (
+              <Input
+                value={seachData}
+                onChangeText={text => seachFunction(text)}
+                variant="outline"
+                placeholder="Search Customer"
+                InputLeftElement={
+                  <Icon
+                    as={<FontIcon name="search" />}
+                    size={4}
+                    ml="2"
+                    color="muted.400"
+                  />
+                }
+              />
+            )}
             <FlatList
               style={{
                 // borderColor: 'black',
                 // borderWidth: 1,
-                height: '95%',
+                height: '86%',
               }}
-              data={customerData}
-              keyExtractor={item => item.id}
+              ListEmptyComponent={() => {
+                return (
+                  <Center
+                    // borderColor="black"
+                    // borderWidth={1}
+                    h={350}
+                    alignItems="center"
+                    alignContent="center"
+                    textAlign="center">
+                    <FontIcon name="database" color="#8c0cc9" size={150} />
+                    <Text fontSize="lg" color="#8c0cc9" fontWeight="bold">
+                      No Data Available.
+                    </Text>
+                  </Center>
+                );
+              }}
+              removeClippedSubviews={true}
+              data={filteredDataSource}
               renderItem={renderItem}
+              maxToRenderPerBatch={10}
+              keyExtractor={(item, index) => {
+                return item.customer_id;
+              }}
+              updateCellsBatchingPeriod={50}
               refreshControl={
                 <RefreshControl
                   title="Pull to refresh"
@@ -708,14 +824,15 @@ export default function Customer({navigation}) {
                 />
               }
             />
-          </Box>
+          </VStack>
         </Box>
       </Center>
       <Modal
         style={{
           justifyContent: 'center',
         }}
-        animationType="fade"
+        useNativeDriver={true}
+        animationType="none"
         transparent={true}
         visible={modalVisible}>
         <Box style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -729,17 +846,11 @@ export default function Customer({navigation}) {
                     overflow="hidden"
                     borderColor="coolGray.200"
                     borderWidth="1"
-                    _dark={{
-                      borderColor: 'coolGray.600',
-                      backgroundColor: 'gray.700',
-                    }}
                     _web={{
                       shadow: 2,
                       borderWidth: 0,
                     }}
-                    _light={{
-                      backgroundColor: 'gray.50',
-                    }}>
+                    background="gray.50">
                     <Box>
                       <Pressable
                         onPress={() => {
@@ -749,9 +860,6 @@ export default function Customer({navigation}) {
                         }}
                         bgColor="#7005a3"
                         bg="#7005a3"
-                        _dark={{
-                          bg: '#7005a3',
-                        }}
                         position="absolute"
                         right="0"
                         top="0"
@@ -801,13 +909,16 @@ export default function Customer({navigation}) {
                             Farmtype <Text style={{color: 'red'}}>*</Text>
                           </FormControl.Label>
                           <Picker
+                            style={{
+                              color: 'black',
+                            }}
                             selectedValue={farmtype}
                             minWidth="200"
                             accessibilityLabel="Choose Service"
                             placeholder="Choose Service"
                             _selectedItem={{
                               bg: 'teal.600',
-                              endIcon: <CheckIcon size="5" />,
+                              endIcon: <CheckIcon size="5" color="black" />,
                             }}
                             mt={1}
                             onValueChange={itemValue => setFarmType(itemValue)}>
@@ -824,13 +935,16 @@ export default function Customer({navigation}) {
                             <Text style={{color: 'red'}}>*</Text>
                           </FormControl.Label>
                           <Picker
+                            style={{
+                              color: 'black',
+                            }}
                             selectedValue={branch_id}
                             minWidth="200"
                             accessibilityLabel="Choose Branch"
                             placeholder="Choose Branch"
                             _selectedItem={{
                               bg: 'teal.600',
-                              endIcon: <CheckIcon size="5" />,
+                              endIcon: <CheckIcon size="5" color="black" />,
                             }}
                             mt={1}
                             onValueChange={itemValue => setBranchId(itemValue)}>
@@ -1088,6 +1202,20 @@ export default function Customer({navigation}) {
           </Modal.Footer>
         </Modal.Content>
       </Modal> */}
+      <Modal
+        style={{
+          justifyContent: 'center',
+        }}
+        animationType="fade"
+        transparent={true}
+        visible={modalLoading}>
+        <Box style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Center bg="#2a2a2ab8" width="50%" height="20%" borderRadius={10}>
+            <ActivityIndicator size="large" color="white" />
+            <Text color="white">Loading...</Text>
+          </Center>
+        </Box>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -70,7 +70,7 @@ public class BackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 //        sya ni ang ga run background nga daw notifcation
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      
             this.handler.post(this.runnableCode);
             createNotificationChannel();
             Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -83,21 +83,7 @@ public class BackgroundService extends Service {
                     .setOngoing(true)
                     .build();
             startForeground(SERVICE_NOTIFICATION_ID, notification);
-        }else{
-            this.handler.post(this.runnableCode);
-            createNotificationChannel();
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("SchedNotes")
-                    .setContentText("Working...")
-                    .setSmallIcon(R.mipmap.sched_icon_round)
-                    .setContentIntent(contentIntent)
-                    .setOngoing(true)
-                    .build();
-            startForeground(SERVICE_NOTIFICATION_ID, notification);
-        }
-
+      
 //        onDisplayPopupPermission();
 
         return START_STICKY;

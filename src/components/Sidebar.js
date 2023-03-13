@@ -52,7 +52,7 @@ export default function Sidebar({...props}) {
         }
         overflow="hidden"
         shadow={1}
-        _light={{backgroundColor: '#dc92ff'}}
+        _light={{backgroundColor: '#8c0cc9'}}
         _dark={{backgroundColor: 'gray.700'}}>
         <Stack p="4" space={3}>
           <Stack space={2}>
@@ -68,7 +68,7 @@ export default function Sidebar({...props}) {
                 source={require('../assets/user_logo.png')}>
                 RS
               </Avatar>
-              <Heading size="md" ml="-1">
+              <Heading size="md" ml="-1" color="white">
                 {user_fname}
               </Heading>
               <HStack>

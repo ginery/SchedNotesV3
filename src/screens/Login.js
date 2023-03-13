@@ -150,18 +150,12 @@ export default function LoginScreen() {
           var data = responseJson.array_data[0];
           if (data.response == 1) {
             requestLocationPermission();
-            toast.show({
-              placement: 'top',
-              render: () => {
-                return (
-                  <Box bg="emerald.500" px="2" py="1" rounded="sm" mb={5}>
-                    <Text color="white">
-                      Great! Please Wait 10 seconds after login.
-                    </Text>
-                  </Box>
-                );
-              },
-            });
+
+            ToastAndroid.showWithGravity(
+              'Great! Please Wait 10 seconds after login.',
+              ToastAndroid.LONG,
+              ToastAndroid.CENTER,
+            );
             setItemStorage('user_details', {
               user_id: data.user_id,
               user_name: data.name,
@@ -173,17 +167,11 @@ export default function LoginScreen() {
               navigation.navigate('Landing');
             }, 1000);
           } else if (data.response == 0) {
-            setButtonStatus(false);
-            toast.show({
-              placement: 'top',
-              render: () => {
-                return (
-                  <Box bg="warning.500" px="2" py="1" rounded="sm" mb={5}>
-                    <Text color="white">Ops! Incorrect credential</Text>
-                  </Box>
-                );
-              },
-            });
+            ToastAndroid.showWithGravity(
+              'Ops! Incorrect credential',
+              ToastAndroid.LONG,
+              ToastAndroid.CENTER,
+            );
             setButtonStatus(false);
           } else {
             toast.show({
