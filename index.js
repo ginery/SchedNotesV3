@@ -20,18 +20,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import PushNotification from 'react-native-push-notification';
 import {Alert} from 'react-native';
-import {
-  accelerometer,
-  gyroscope,
-  setUpdateIntervalForType,
-  SensorTypes,
-  magnetometer,
-} from 'react-native-sensors';
+// import {
+//   accelerometer,
+//   gyroscope,
+//   setUpdateIntervalForType,
+//   SensorTypes,
+//   magnetometer,
+// } from 'react-native-sensors';
 import 'react-native-gesture-handler';
 // import React from "react";
-setUpdateIntervalForType(SensorTypes.magnetometer, 100);
+// setUpdateIntervalForType(SensorTypes.magnetometer, 100);
 const {Background} = NativeModules;
-const db = open({name: 'myDB'});
+// const db = open({name: 'myDB'});
 const setItemStorage = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
@@ -271,4 +271,4 @@ const MyHeadlessTask = async () => {
   });
 };
 AppRegistry.registerComponent(appName, () => App);
-AppRegistry.registerHeadlessTask('Background', () => MyHeadlessTask);
+// AppRegistry.registerHeadlessTask('Background', () => MyHeadlessTask);

@@ -38,8 +38,7 @@ const Home = () => {
   const [dataArray, setDataArray] = React.useState([]);
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      console.log('stest');
-      requestLocationPermission();
+      // requestLocationPermission();
     });
 
     return () => {
@@ -84,32 +83,31 @@ const Home = () => {
       }
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Location permission granted');
-        setTimeout(() => {
-          PushNotification.getDeliveredNotifications(e => {
-            console.log(e, 'notif');
-
-            if (e != '') {
-              e.map((item, index) => {
-                if (item.title == 'SchedNotes') {
-                  // console.log('horray');
-                  Background.startService();
-                } else {
-                  // console.log('logout');
-                  Background.stopService();
-                  AsyncStorage.clear();
-                  navigation.navigate('Login');
-                  retrieveUser();
-                }
-              });
-            } else {
-              Background.stopService();
-              AsyncStorage.clear();
-              navigation.navigate('Login');
-              retrieveUser();
-            }
-          });
-        }, 10000);
+        // console.log('Location permission granted');
+        // setTimeout(() => {
+        //   PushNotification.getDeliveredNotifications(e => {
+        //     // console.log(e, 'notif');
+        //     if (e != '') {
+        //       e.map((item, index) => {
+        //         if (item.title == 'SchedNotes') {
+        //           // console.log('horray');
+        //           Background.startService();
+        //         } else {
+        //           // console.log('logout');
+        //           Background.stopService();
+        //           AsyncStorage.clear();
+        //           navigation.navigate('Login');
+        //           retrieveUser();
+        //         }
+        //       });
+        //     } else {
+        //       Background.stopService();
+        //       AsyncStorage.clear();
+        //       navigation.navigate('Login');
+        //       retrieveUser();
+        //     }
+        //   });
+        // }, 10000);
       } else {
         Alert.alert(
           'You denied the location permission. Please allow it to your phone settings manually for the app to utilize its full features.',

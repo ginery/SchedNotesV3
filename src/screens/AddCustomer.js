@@ -202,12 +202,12 @@ const AddCustomerScreen = () => {
         <HStack space={4} alignItems="center">
           <TouchableOpacity
             onPress={() => {
-              navigation.openDrawer();
+              navigation.navigate('Customer');
             }}>
-            <Icon name="bars" size={22} color="white" />
+            <Icon name="arrow-left" size={22} color="white" />
           </TouchableOpacity>
           <Text color="white" fontSize={20} fontWeight="bold">
-            SchedNotes@V3
+            Add Customer
           </Text>
         </HStack>
         <HStack space={2}>
