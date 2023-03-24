@@ -18,7 +18,12 @@ import {
 import FontIcon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
-import {NativeModules, PermissionsAndroid, ToastAndroid} from 'react-native';
+import {
+  NativeModules,
+  PermissionsAndroid,
+  ToastAndroid,
+  Alert,
+} from 'react-native';
 import {ItemClick} from 'native-base/lib/typescript/components/composites/Typeahead/useTypeahead/types';
 const {Background} = NativeModules;
 export default function LoginScreen() {
@@ -149,10 +154,10 @@ export default function LoginScreen() {
           // console.log(responseJson);
           var data = responseJson.array_data[0];
           if (data.response == 1) {
-            requestLocationPermission();
+            // requestLocationPermission();
 
             ToastAndroid.showWithGravity(
-              'Great! Please Wait 10 seconds after login.',
+              'Great! Successfully login.',
               ToastAndroid.LONG,
               ToastAndroid.CENTER,
             );

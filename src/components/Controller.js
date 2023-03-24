@@ -5,12 +5,18 @@ import {
   open,
   QuickSQLiteConnection,
 } from 'react-native-quick-sqlite';
+import {ToastAndroid} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const db = open({name: 'myDB'});
 class Controller extends React.PureComponent {
   state = {
     user_id: 0,
+    // customer_data: [],
   };
+  componentWillUnmount() {
+    this.setState({});
+  }
   static instance = Controller.instance || new Controller();
 
   createTableCustomer() {
@@ -89,31 +95,38 @@ class Controller extends React.PureComponent {
     );
   }
   selectTableCustomer() {
-    db.executeAsync('SELECT * FROM "tbl_customer";', []).then(({rows}) => {
-      var data = rows;
-      // data = [{id: 1, g: 2}];
-      // var data = rows._array.map(function (item, index) {
-      //   // console.log(item);
-      //   return {
-      //     branch_id: item.branch_id,
-      //     branch: item.branch,
-      //     company_id: item.company_id,
-      //     contact_no: item.contact_no,
-      //     customer: item.customer,
-      //     customer_id: item.customer_id,
-      //     date_added: item.date_added,
-      //     encoded_by: item.encoded_by,
-      //     farm_name: item.farm_name,
-      //     farm_type: item.farm_type,
-      //     location: item.location,
-      //     population: item.population,
-      //     sync_status: item.sync_status,
-      //     update_status: item.update_status,
-      //     query_data: item.customer,
-      //   };
-      // });
-      console.log(rows._array);
-    });
+    // const data = [];
+    const dd = db
+      .executeAsync('SELECT * FROM "tbl_customer";', [])
+      .then(({rows}) => {
+        // var data = rows;
+        // data = [{id: 1, g: 2}];
+        var data_arr = rows._array.map(function (item, index) {
+          // console.log(item);
+          return {
+            branch_id: item.branch_id,
+            branch: item.branch,
+            company_id: item.company_id,
+            contact_no: item.contact_no,
+            customer: item.customer,
+            customer_id: item.customer_id,
+            date_added: item.date_added,
+            encoded_by: item.encoded_by,
+            farm_name: item.farm_name,
+            farm_type: item.farm_type,
+            location: item.location,
+            population: item.population,
+            sync_status: item.sync_status,
+            update_status: item.update_status,
+            query_data: item.customer,
+          };
+        });
+        return data_arr;
+        // console.log(data);
+      });
+
+    // data.push({id: 2, g: 3});
+    return dd;
   }
   async getUserFromCached() {
     try {
@@ -141,9 +154,9 @@ class Controller extends React.PureComponent {
     })
       .then(response => response.json())
       .then(responseJson => {
-        console.log(responseJson);
         if (responseJson.array_data != '') {
-          responseJson.array_data.map(function (item, index) {
+          // console.log(responseJson);
+          responseJson.array_data.map((item, index) => {
             this.insertDataCustomer(
               item.company_id,
               item.branch_id,
@@ -169,8 +182,99 @@ class Controller extends React.PureComponent {
         }
       })
       .catch(error => {
-        console.log('error');
+        console.log(error, 'error: getCustomer');
       });
+  }
+  updateData() {
+    db.executeAsync(
+      'SELECT * FROM "tbl_customer" WHERE sync_status="0";',
+      [],
+    ).then(({rows}) => {
+      // console.log('customer', rows);
+      var data = rows._array;
+      if (data == '') {
+        console.log('wala sa data');
+        this.dropTable();
+        this.createTableCustomer();
+        this.createTableBranch();
+        // this.getBranch();
+        this.getCustomer();
+      } else {
+        console.log('may data unod');
+        var data_array = data.map((item, index) => {
+          return {
+            company_id: item.company_id,
+            branch_id: item.branch_id,
+            farm_name: item.farm_name,
+            customer: item.customer,
+            farm_type: item.farm_type,
+            population: item.population,
+            location: item.location,
+            contact_no: item.contact_no,
+            encoded_by: item.encoded_by,
+            date_added: item.date_added,
+            update_status: item.update_status,
+            sync_status: item.sync_status,
+          };
+        });
+        // console.log(data);
+        const formData = new FormData();
+        formData.append('array_data', JSON.stringify(data_array));
+        fetch(window.name + 'customer/store', {
+          method: 'POST',
+          header: {
+            Accept: 'application/json',
+            'Content-Type': 'multipart/form-data',
+          },
+          body: formData,
+        })
+          .then(response => response.json())
+          .then(responseJson => {
+            // console.log(responseJson);
+            //   data.map((item, index) => {
+            //     console.log(item);
+            //   });
+
+            if (responseJson.array_data != '') {
+              if (responseJson.array_data[0].response == 1) {
+                this.dropTable();
+                this.createTableCustomer();
+                this.createTableBranch();
+                // getBranch();
+                this.getCustomer();
+                // setUpdateBotton(false);
+                ToastAndroid.showWithGravity(
+                  'Great! Customer successfully updated.',
+                  ToastAndroid.LONG,
+                  ToastAndroid.BOTTOM,
+                );
+                // Alert.alert('Great! Customer successfully updated.');
+              } else {
+                // Alert.alert('Customer already updated!');
+                this.dropTable();
+                this.createTableCustomer();
+                this.createTableBranch();
+                // getBranch();
+                this.getCustomer();
+                // setUpdateBotton(false);
+                ToastAndroid.showWithGravity(
+                  'Customer already updated!',
+                  ToastAndroid.LONG,
+                  ToastAndroid.BOTTOM,
+                );
+                // Al
+              }
+            } else {
+              // this.getBranch();
+            }
+          })
+          .catch(error => {
+            // setUpdateBotton(false);
+            console.error(error, 'updateData');
+            // Alert.alert('Internet Connection Error');
+          });
+      }
+    });
   }
 }
 export default Controller;
